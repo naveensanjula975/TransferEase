@@ -12,6 +12,7 @@ import Dashboard from "./components/Dashboard";
 import VehicleTransferForm from "./components/VehicleTransferForm";
 import NotificationsPage from "./components/NotificationsPage";
 import SettingsPage from "./components/SettingsPage";
+import DownloadPage from "./components/DownloadPage";
 // import SignUp from "./components/SignUp";
 import "./App.css";
 
@@ -29,10 +30,11 @@ function App() {
         <Route path="/admin/statistics" element={<StatisticsPage />} />
         <Route path="/admin/notifications" element={<NotificationsPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />
-        {/* <Route path="/signup" element={<Register />} /> */}
+        <Route path="/signup" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/transfer" element={<VehicleTransferForm />} />
         <Route path="/vehicle-transfer" element={<VehicleTransferForm />} />
+        <Route path="/downloads" element={<DownloadPage />} />
       </Routes>
     </Router>
   );

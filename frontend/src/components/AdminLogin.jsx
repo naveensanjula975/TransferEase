@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "./shared/Navbar";
+// import Navbar from "./shared/Navbar";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -65,12 +65,12 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <div className="flex min-h-screen">
-        <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
-          <div className="mx-auto w-full max-w-sm">
-            <div className="text-center mb-8">
+        <div className="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
+          <div className="w-full max-w-sm mx-auto">
+            <div className="mb-8 text-center">
               <h2 className="text-3xl font-bold text-gray-900">Admin Login</h2>
               <p className="mt-2 text-sm text-gray-600">
                 Please Enter Your Email Address & Password
@@ -93,7 +93,7 @@ const AdminLogin = () => {
                     value={formData.nic}
                     onChange={handleInputChange}
                     placeholder="Ex: 98653245v"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                   {errors.nic && (
                     <p className="mt-1 text-sm text-red-600">{errors.nic}</p>
@@ -116,7 +116,7 @@ const AdminLogin = () => {
                     value={formData.employeeId}
                     onChange={handleInputChange}
                     placeholder="EM0013"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                   {errors.employeeId && (
                     <p className="mt-1 text-sm text-red-600">
@@ -141,7 +141,7 @@ const AdminLogin = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="Ex: name@gmail.com"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                   {errors.email && (
                     <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -156,7 +156,7 @@ const AdminLogin = () => {
                   className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <div className="mt-1 relative">
+                <div className="relative mt-1">
                   <input
                     id="password"
                     name="password"
@@ -164,14 +164,14 @@ const AdminLogin = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Enter Password"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    className="absolute inset-y-0 right-0 flex items-center pr-3">
                     <svg
-                      className="h-5 w-5 text-gray-400"
+                      className="w-5 h-5 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -210,7 +210,7 @@ const AdminLogin = () => {
 
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 border border-transparent rounded-md shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
                 Login
               </button>
             </form>

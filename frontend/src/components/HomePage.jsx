@@ -7,57 +7,84 @@ import Logo from "../assets/logo-1 2.png";
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       {/* Navigation Bar */}
-      <nav className="flex items-center justify-between px-16 py-4 bg-white">
-        <Link to="/" className="text-xl font-bold">
+      <nav className="sticky top-0 z-50 flex items-center justify-between px-4 py-4 bg-white shadow-sm md:px-16">
+        <Link
+          to="/"
+          className="text-xl font-bold transition-colors hover:text-orange-500">
           TransferEase
         </Link>
-        <div className="flex items-center gap-8">
-          <Link to="/" className="text-gray-700 hover:text-gray-900">
+        <div className="items-center hidden gap-8 md:flex">
+          <Link
+            to="/"
+            className="text-gray-700 transition-colors hover:text-orange-500">
             Home
           </Link>
-          <Link to="/downloads" className="text-gray-700 hover:text-gray-900">
+          <Link
+            to="/downloads"
+            className="text-gray-700 transition-colors hover:text-orange-500">
             Downloads
           </Link>
-          <Link to="/transfer" className="text-gray-700 hover:text-gray-900">
+          <Link
+            to="/transfer"
+            className="text-gray-700 transition-colors hover:text-orange-500">
             Transfer
           </Link>
-          <Link to="/contact" className="text-gray-700 hover:text-gray-900">
+          <Link
+            to="/contact"
+            className="text-gray-700 transition-colors hover:text-orange-500">
             Contact
           </Link>
-          <Link to="/login" className="text-gray-700 hover:text-gray-900">
+          <Link
+            to="/login"
+            className="text-gray-700 transition-colors hover:text-orange-500">
             Login
           </Link>
           <Link
             to="/signup"
-            className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 transition-colors">
-            Sign UP
+            className="px-5 py-2 text-white transition-all transform bg-orange-500 rounded-md hover:bg-orange-600 hover:scale-105 focus:ring-2 focus:ring-orange-300">
+            Sign Up
           </Link>
         </div>
+        {/* Mobile Menu Button */}
+        <button className="p-2 text-gray-700 md:hidden hover:text-orange-500">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
       </nav>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-16 py-12">
-        <div className="flex items-center justify-between">
+      <div className="container px-4 py-12 mx-auto md:px-16">
+        <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           <div className="max-w-xl">
-            <h1 className="text-[2.75rem] font-bold leading-tight mb-4">
+            <h1 className="text-4xl md:text-[2.75rem] font-bold leading-tight mb-4">
               Vehicle Ownership Transfer{" "}
               <span className="text-orange-500">Easy.</span>
             </h1>
-            <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+            <p className="mb-8 text-lg leading-relaxed text-gray-600">
               We aim to streamline the vehicle owner transfer process that
               ensures a smooth and secure transfer by eliminating the need for
               owners and buyers to do manual long processes.
             </p>
             <div className="flex items-center gap-4">
-              <button className="bg-orange-500 text-white px-6 py-3 rounded-md hover:bg-orange-600 transition-colors">
+              <button className="px-6 py-3 text-white transition-all transform bg-orange-500 rounded-md hover:bg-orange-600 hover:scale-105 focus:ring-2 focus:ring-orange-300">
                 Transfer Now
               </button>
-              <button className="inline-flex items-center text-gray-700 hover:text-orange-500 transition-colors">
+              <button className="inline-flex items-center text-gray-700 transition-colors hover:text-orange-500 group">
                 More Details
                 <svg
-                  className="w-5 h-5 ml-2"
+                  className="w-5 h-5 ml-2 transition-transform transform group-hover:translate-x-1"
                   viewBox="0 0 20 20"
                   fill="currentColor">
                   <path
@@ -69,12 +96,13 @@ const HomePage = () => {
               </button>
             </div>
           </div>
-          <div className="relative">
-            <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl p-8">
+          <div className="relative w-full md:w-auto">
+            <div className="p-4 transition-transform transform bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl md:p-8">
               <img
                 src={Toyota}
                 alt="White Toyota Camry"
-                className="w-[600px] h-auto"
+                className="w-full md:w-[600px] h-auto"
+                loading="lazy"
               />
             </div>
           </div>
@@ -82,15 +110,15 @@ const HomePage = () => {
       </div>
 
       {/* How it Works Section */}
-      <div className="bg-gray-50 py-20">
-        <div className="container mx-auto px-16">
-          <h3 className="text-center text-gray-600 mb-2">How it work</h3>
-          <h2 className="text-center text-3xl font-semibold mb-16">
+      <div className="py-20 bg-white">
+        <div className="container px-4 mx-auto md:px-16">
+          <h3 className="mb-2 text-center text-gray-600">How it works</h3>
+          <h2 className="mb-16 text-3xl font-semibold text-center">
             Transfer your vehicle with 3 steps
           </h2>
-          <div className="flex justify-between items-center relative">
-            <div className="text-center z-10">
-              <div className="bg-white p-6 rounded-full inline-block mb-6 shadow-md">
+          <div className="relative flex flex-col items-center justify-between gap-8 md:flex-row md:gap-0">
+            <div className="z-10 text-center transition-transform transform hover:scale-105">
+              <div className="inline-block p-6 mb-6 transition-shadow bg-white rounded-full shadow-lg hover:shadow-xl">
                 <svg
                   className="w-12 h-12 text-orange-500"
                   fill="none"
@@ -104,7 +132,7 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Pick Vehicle</h3>
+              <h3 className="mb-2 text-lg font-semibold">Pick Vehicle</h3>
               <p className="text-gray-600">
                 Create account and make
                 <br />
@@ -112,8 +140,13 @@ const HomePage = () => {
               </p>
             </div>
 
-            <div className="text-center z-10">
-              <div className="bg-orange-500 p-6 rounded-full inline-block mb-6 shadow-md">
+            {/* Connecting Lines - Only visible on desktop */}
+            <div className="hidden md:block absolute top-24 left-0 right-0 h-0.5">
+              <div className="w-full h-full border-t-2 border-gray-300 border-dashed"></div>
+            </div>
+
+            <div className="z-10 text-center transition-transform transform hover:scale-105">
+              <div className="inline-block p-6 mb-6 transition-shadow bg-orange-500 rounded-full shadow-lg hover:shadow-xl">
                 <svg
                   className="w-12 h-12 text-white"
                   fill="none"
@@ -127,7 +160,7 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Fill Out Forms</h3>
+              <h3 className="mb-2 text-lg font-semibold">Fill Out Forms</h3>
               <p className="text-gray-600">
                 After owner accepting the request
                 <br />
@@ -135,8 +168,8 @@ const HomePage = () => {
               </p>
             </div>
 
-            <div className="text-center z-10">
-              <div className="bg-white p-6 rounded-full inline-block mb-6 shadow-md">
+            <div className="z-10 text-center transition-transform transform hover:scale-105">
+              <div className="inline-block p-6 mb-6 transition-shadow bg-white rounded-full shadow-lg hover:shadow-xl">
                 <svg
                   className="w-12 h-12 text-orange-500"
                   fill="none"
@@ -150,76 +183,73 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Transfer Vehicle</h3>
+              <h3 className="mb-2 text-lg font-semibold">Transfer Vehicle</h3>
               <p className="text-gray-600">
                 DMT will check your details and
                 <br />
                 do the ownership transfer
               </p>
             </div>
-
-            {/* Connecting Lines */}
-            <div className="absolute top-24 left-0 right-0 h-0.5">
-              <div className="w-full h-full border-t-2 border-dashed border-gray-300"></div>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Features Sections */}
-      <div className="container mx-auto px-16 py-20">
-        <div className="flex items-center justify-between mb-24">
+      <div className="container px-4 py-20 mx-auto md:px-16">
+        <div className="flex flex-col items-center justify-between gap-8 mb-24 md:flex-row">
           <div className="max-w-xl">
-            <h3 className="text-blue-600 font-semibold mb-3">
+            <h3 className="mb-3 font-semibold text-blue-600">
               Streamline Vehicle Ownership Transfer
             </h3>
-            <h2 className="text-3xl font-bold mb-6">
+            <h2 className="mb-6 text-3xl font-bold">
               Simplifying the Process for
               <br />
               Seamless Transfers
             </h2>
-            <p className="text-gray-600 mb-8 leading-relaxed">
+            <p className="mb-8 leading-relaxed text-gray-600">
               Our platform offers a hassle-free solution for transferring
               vehicle ownership, making the process efficient and
               straightforward.
             </p>
-            <button className="bg-orange-500 text-white px-6 py-3 rounded-md hover:bg-orange-600 transition-colors">
+            <button className="px-6 py-3 text-white transition-all transform bg-orange-500 rounded-md hover:bg-orange-600 hover:scale-105 focus:ring-2 focus:ring-orange-300">
               More Details
             </button>
           </div>
-          <div className="relative">
+          <div className="relative w-full md:w-auto">
             <img
               src={Car2}
               alt="Luxury SUV"
-              className="w-[500px] rounded-lg shadow-lg"
+              className="w-full"
+              loading="lazy"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="relative">
+        <div className="flex flex-col-reverse items-center justify-between gap-8 md:flex-row">
+          <div className="relative w-full md:w-auto">
             <img
               src={Car1}
               alt="Sports Car"
-              className="w-[500px] rounded-lg shadow-lg"
+              className="w-full"
+              loading="lazy"
             />
           </div>
           <div className="max-w-xl">
-            <h3 className="text-blue-600 font-semibold mb-3">
+            <h3 className="mb-3 font-semibold text-blue-600">
               Streamline Your Vehicle Ownership Transfer Process
             </h3>
-            <h2 className="text-3xl font-bold mb-6">
+            <h2 className="mb-6 text-3xl font-bold">
               Efficiency at Your
               <br />
               Fingertips
             </h2>
-            <p className="text-gray-600 mb-8 leading-relaxed">
+            <p className="mb-8 leading-relaxed text-gray-600">
               Welcome to our streamlined platform where transferring vehicle
               ownership is simplified through our innovative and user-friendly
               digital solutions. Experience a seamless process that saves you
               time and effort.
             </p>
-            <button className="bg-orange-500 text-white px-6 py-3 rounded-md hover:bg-orange-600 transition-colors">
+            <button className="px-6 py-3 text-white transition-all transform bg-orange-500 rounded-md hover:bg-orange-600 hover:scale-105 focus:ring-2 focus:ring-orange-300">
               More Details
             </button>
           </div>
@@ -227,29 +257,34 @@ const HomePage = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-orange-500 py-16 relative overflow-hidden">
-        <div className="container mx-auto px-16 relative z-10">
-          <div className="flex items-center justify-between">
+      <div className="relative py-16 overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600">
+        <div className="container relative z-10 px-4 mx-auto md:px-16">
+          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div>
-              <h2 className="text-white text-3xl font-bold mb-3">
+              <h2 className="mb-3 text-3xl font-bold text-white">
                 Enjoy with our service
               </h2>
-              <h3 className="text-white text-2xl mb-4">It's Free</h3>
-              <p className="text-white opacity-90 mb-8">
+              <h3 className="mb-4 text-2xl text-white">It's Free</h3>
+              <p className="mb-8 text-white opacity-90">
                 For faster, easier transfering and save time.
               </p>
-              <button className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
-                Get Start
+              <button className="px-6 py-3 text-orange-500 transition-all transform bg-white rounded-md hover:bg-gray-100 hover:scale-105 focus:ring-2 focus:ring-white">
+                Get Started
               </button>
             </div>
-            <div>
-              <img src={Logo} alt="CodeVerse TransferEase" className="h-16" />
+            <div className="transition-transform transform hover:scale-105">
+              <img
+                src={Logo}
+                alt="CodeVerse TransferEase"
+                className="h-16"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
         {/* Curved Design Element */}
-        <div className="absolute right-0 bottom-0 w-96 h-96">
-          <svg viewBox="0 0 200 200" className="text-orange-400 opacity-50">
+        <div className="absolute bottom-0 right-0 w-96 h-96 opacity-20">
+          <svg viewBox="0 0 200 200" className="text-white">
             <path
               fill="currentColor"
               d="M100,0 C130,40 180,50 200,100 L200,200 L0,200 L0,100 C20,50 70,40 100,0"
@@ -259,11 +294,16 @@ const HomePage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white py-12">
-        <div className="container mx-auto px-16">
-          <div className="flex items-start justify-between">
+      <footer className="py-12 bg-white">
+        <div className="container px-4 mx-auto md:px-16">
+          <div className="flex flex-col items-start justify-between gap-8 md:flex-row">
             <div>
-              <img src={Logo} alt="CodeVerse" className="h-12 mb-6" />
+              <img
+                src={Logo}
+                alt="CodeVerse"
+                className="h-12 mb-6"
+                loading="lazy"
+              />
               <p className="text-gray-600">
                 No. 241, Malligaha Mawatha,
                 <br />
@@ -271,14 +311,17 @@ const HomePage = () => {
               </p>
             </div>
             <div>
-              <p className="text-gray-600">+94-714956123</p>
+              <p className="text-gray-600 transition-colors hover:text-orange-500">
+                <a href="tel:+94714956123">+94-714956123</a>
+              </p>
             </div>
             <div>
-              <p className="text-gray-600 font-medium mb-6">Follow Us</p>
+              <p className="mb-6 font-medium text-gray-600">Follow Us</p>
               <div className="flex gap-6">
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 transition-colors">
+                  className="text-gray-500 transition-colors transform hover:text-orange-500 hover:scale-110"
+                  aria-label="Facebook">
                   <svg
                     className="w-6 h-6"
                     fill="currentColor"
@@ -288,7 +331,8 @@ const HomePage = () => {
                 </a>
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 transition-colors">
+                  className="text-gray-500 transition-colors transform hover:text-orange-500 hover:scale-110"
+                  aria-label="Twitter">
                   <svg
                     className="w-6 h-6"
                     fill="currentColor"
@@ -298,7 +342,8 @@ const HomePage = () => {
                 </a>
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 transition-colors">
+                  className="text-gray-500 transition-colors transform hover:text-orange-500 hover:scale-110"
+                  aria-label="Instagram">
                   <svg
                     className="w-6 h-6"
                     fill="currentColor"
@@ -308,7 +353,8 @@ const HomePage = () => {
                 </a>
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 transition-colors">
+                  className="text-gray-500 transition-colors transform hover:text-orange-500 hover:scale-110"
+                  aria-label="YouTube">
                   <svg
                     className="w-6 h-6"
                     fill="currentColor"
@@ -319,7 +365,7 @@ const HomePage = () => {
               </div>
             </div>
           </div>
-          <div className="text-center mt-12">
+          <div className="mt-12 text-center">
             <p className="text-gray-600">
               Copyright 2024 © CodeVerse. All Rights Reserved.
             </p>

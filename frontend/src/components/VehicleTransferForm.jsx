@@ -149,7 +149,7 @@ const VehicleTransferForm = () => {
             <div className="grid grid-cols-2 gap-6">
               {/* Name Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Name
                 </label>
                 <div className="relative">
@@ -159,12 +159,12 @@ const VehicleTransferForm = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Nimal Kamal"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none pl-10"
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     required
                   />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg
-                      className="h-5 w-5 text-gray-400"
+                      className="w-5 h-5 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -178,13 +178,13 @@ const VehicleTransferForm = () => {
                   </div>
                 </div>
                 {errors.name && (
-                  <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
 
               {/* Email Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Email
                 </label>
                 <div className="relative">
@@ -194,12 +194,12 @@ const VehicleTransferForm = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="Email address"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none pl-10"
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     required
                   />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg
-                      className="h-5 w-5 text-gray-400"
+                      className="w-5 h-5 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -213,13 +213,13 @@ const VehicleTransferForm = () => {
                   </div>
                 </div>
                 {errors.email && (
-                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
                 )}
               </div>
 
               {/* Phone Number Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Phone Number
                 </label>
                 <div className="relative">
@@ -229,12 +229,12 @@ const VehicleTransferForm = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="071 456 7890"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none pl-10"
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     required
                   />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg
-                      className="h-5 w-5 text-gray-400"
+                      className="w-5 h-5 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -248,13 +248,13 @@ const VehicleTransferForm = () => {
                   </div>
                 </div>
                 {errors.phone && (
-                  <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
                 )}
               </div>
 
               {/* Address Field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Address
                 </label>
                 <div className="relative">
@@ -264,12 +264,12 @@ const VehicleTransferForm = () => {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="Your Address"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none pl-10"
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     required
                   />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg
-                      className="h-5 w-5 text-gray-400"
+                      className="w-5 h-5 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -289,7 +289,7 @@ const VehicleTransferForm = () => {
                   </div>
                 </div>
                 {errors.address && (
-                  <p className="text-sm text-red-600 mt-1">{errors.address}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
             </div>
@@ -301,7 +301,7 @@ const VehicleTransferForm = () => {
             <div className="grid grid-cols-2 gap-6">
               {/* Registration Number */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Registration Number
                 </label>
                 <input
@@ -310,11 +310,11 @@ const VehicleTransferForm = () => {
                   value={formData.registrationNumber}
                   onChange={handleInputChange}
                   placeholder="CAX-5678"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.registrationNumber && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="mt-1 text-sm text-red-600">
                     {errors.registrationNumber}
                   </p>
                 )}
@@ -322,7 +322,7 @@ const VehicleTransferForm = () => {
 
               {/* Make */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Make
                 </label>
                 <input
@@ -331,17 +331,17 @@ const VehicleTransferForm = () => {
                   value={formData.make}
                   onChange={handleInputChange}
                   placeholder="Toyota"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.make && (
-                  <p className="text-sm text-red-600 mt-1">{errors.make}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.make}</p>
                 )}
               </div>
 
               {/* Model */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Model
                 </label>
                 <input
@@ -350,17 +350,17 @@ const VehicleTransferForm = () => {
                   value={formData.model}
                   onChange={handleInputChange}
                   placeholder="Corolla"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.model && (
-                  <p className="text-sm text-red-600 mt-1">{errors.model}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.model}</p>
                 )}
               </div>
 
               {/* Year */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Year
                 </label>
                 <input
@@ -369,17 +369,17 @@ const VehicleTransferForm = () => {
                   value={formData.year}
                   onChange={handleInputChange}
                   placeholder="2020"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.year && (
-                  <p className="text-sm text-red-600 mt-1">{errors.year}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.year}</p>
                 )}
               </div>
 
               {/* Chassis Number */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Chassis Number
                 </label>
                 <input
@@ -388,11 +388,11 @@ const VehicleTransferForm = () => {
                   value={formData.chassisNumber}
                   onChange={handleInputChange}
                   placeholder="JHMCM56557C404453"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.chassisNumber && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="mt-1 text-sm text-red-600">
                     {errors.chassisNumber}
                   </p>
                 )}
@@ -400,7 +400,7 @@ const VehicleTransferForm = () => {
 
               {/* Engine Number */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Engine Number
                 </label>
                 <input
@@ -409,11 +409,11 @@ const VehicleTransferForm = () => {
                   value={formData.engineNumber}
                   onChange={handleInputChange}
                   placeholder="K20A4-1234567"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.engineNumber && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="mt-1 text-sm text-red-600">
                     {errors.engineNumber}
                   </p>
                 )}
@@ -421,7 +421,7 @@ const VehicleTransferForm = () => {
 
               {/* Color */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Color
                 </label>
                 <input
@@ -430,11 +430,11 @@ const VehicleTransferForm = () => {
                   value={formData.color}
                   onChange={handleInputChange}
                   placeholder="Silver"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   required
                 />
                 {errors.color && (
-                  <p className="text-sm text-red-600 mt-1">{errors.color}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.color}</p>
                 )}
               </div>
             </div>
@@ -446,13 +446,13 @@ const VehicleTransferForm = () => {
             <div className="grid grid-cols-1 gap-6">
               {/* Registration Document Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Vehicle Registration Document
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500 transition-colors">
+                <div className="flex justify-center px-6 pt-5 pb-6 mt-1 transition-colors border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500">
                   <div className="space-y-1 text-center">
                     <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
+                      className="w-12 h-12 mx-auto text-gray-400"
                       stroke="currentColor"
                       fill="none"
                       viewBox="0 0 48 48"
@@ -467,7 +467,7 @@ const VehicleTransferForm = () => {
                     <div className="flex text-sm text-gray-600">
                       <label
                         htmlFor="registrationDocument"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-orange-500 hover:text-orange-600">
+                        className="relative font-medium text-orange-500 bg-white rounded-md cursor-pointer hover:text-orange-600">
                         <span>Upload a file</span>
                         <input
                           id="registrationDocument"
@@ -500,13 +500,13 @@ const VehicleTransferForm = () => {
 
               {/* Insurance Document Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Insurance Document
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500 transition-colors">
+                <div className="flex justify-center px-6 pt-5 pb-6 mt-1 transition-colors border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500">
                   <div className="space-y-1 text-center">
                     <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
+                      className="w-12 h-12 mx-auto text-gray-400"
                       stroke="currentColor"
                       fill="none"
                       viewBox="0 0 48 48"
@@ -521,7 +521,7 @@ const VehicleTransferForm = () => {
                     <div className="flex text-sm text-gray-600">
                       <label
                         htmlFor="insuranceDocument"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-orange-500 hover:text-orange-600">
+                        className="relative font-medium text-orange-500 bg-white rounded-md cursor-pointer hover:text-orange-600">
                         <span>Upload a file</span>
                         <input
                           id="insuranceDocument"
@@ -554,13 +554,13 @@ const VehicleTransferForm = () => {
 
               {/* ID Document Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   ID Document (NIC/Passport)
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500 transition-colors">
+                <div className="flex justify-center px-6 pt-5 pb-6 mt-1 transition-colors border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500">
                   <div className="space-y-1 text-center">
                     <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
+                      className="w-12 h-12 mx-auto text-gray-400"
                       stroke="currentColor"
                       fill="none"
                       viewBox="0 0 48 48"
@@ -575,7 +575,7 @@ const VehicleTransferForm = () => {
                     <div className="flex text-sm text-gray-600">
                       <label
                         htmlFor="idDocument"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-orange-500 hover:text-orange-600">
+                        className="relative font-medium text-orange-500 bg-white rounded-md cursor-pointer hover:text-orange-600">
                         <span>Upload a file</span>
                         <input
                           id="idDocument"
@@ -611,19 +611,19 @@ const VehicleTransferForm = () => {
       case 4:
         return (
           <div className="space-y-6">
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <div className="p-4 mb-6 rounded-lg bg-gray-50">
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
                 Payment Summary
               </h3>
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <div className="flex justify-between mb-1 text-sm text-gray-600">
                 <span>Transfer Fee</span>
                 <span>Rs. 2,000.00</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <div className="flex justify-between mb-1 text-sm text-gray-600">
                 <span>Service Charge</span>
                 <span>Rs. 500.00</span>
               </div>
-              <div className="flex justify-between text-base font-medium text-gray-900 pt-2 border-t">
+              <div className="flex justify-between pt-2 text-base font-medium text-gray-900 border-t">
                 <span>Total Amount</span>
                 <span>Rs. 2,500.00</span>
               </div>
@@ -638,7 +638,7 @@ const VehicleTransferForm = () => {
                   value="card"
                   checked={formData.paymentMethod === "card"}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-orange-500 focus:ring-orange-500"
+                  className="w-4 h-4 text-orange-500 focus:ring-orange-500"
                 />
                 <label
                   htmlFor="card"
@@ -650,7 +650,7 @@ const VehicleTransferForm = () => {
               {formData.paymentMethod === "card" && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Card Number
                     </label>
                     <input
@@ -659,17 +659,17 @@ const VehicleTransferForm = () => {
                       value={formData.cardNumber}
                       onChange={handleInputChange}
                       placeholder="1234 5678 9012 3456"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     />
                     {errors.cardNumber && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="mt-1 text-sm text-red-600">
                         {errors.cardNumber}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Expiry Date
                     </label>
                     <input
@@ -678,17 +678,17 @@ const VehicleTransferForm = () => {
                       value={formData.cardExpiry}
                       onChange={handleInputChange}
                       placeholder="MM/YY"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     />
                     {errors.cardExpiry && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="mt-1 text-sm text-red-600">
                         {errors.cardExpiry}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       CVC
                     </label>
                     <input
@@ -697,11 +697,11 @@ const VehicleTransferForm = () => {
                       value={formData.cardCvc}
                       onChange={handleInputChange}
                       placeholder="123"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     />
                     {errors.cardCvc && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="mt-1 text-sm text-red-600">
                         {errors.cardCvc}
                       </p>
                     )}
@@ -720,11 +720,11 @@ const VehicleTransferForm = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar isLoggedIn={true} />
 
-      <div className="max-w-4xl mx-auto pt-24 p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">
+      <div className="max-w-4xl p-8 pt-24 mx-auto">
+        <h1 className="mb-2 text-3xl font-bold text-center text-gray-900">
           Vehicle Transfer
         </h1>
-        <p className="text-center text-gray-600 mb-12">
+        <p className="mb-12 text-center text-gray-600">
           Please fill the form below to receive the confirmation by DMT for your
           vehicle.
         </p>
@@ -734,7 +734,7 @@ const VehicleTransferForm = () => {
           <div className="flex items-center w-full max-w-3xl">
             {steps.map((step, index) => (
               <React.Fragment key={step.number}>
-                <div className="flex items-center relative">
+                <div className="relative flex items-center">
                   <div
                     className={`rounded-full transition duration-500 ease-in-out h-12 w-12 py-3 border-2 
                     ${
@@ -777,11 +777,11 @@ const VehicleTransferForm = () => {
         </div>
 
         {/* Form Content */}
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <div className="p-8 bg-white rounded-lg shadow-sm">
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">
             {steps[currentStep - 1].title}
           </h2>
-          <p className="text-gray-600 mb-8">
+          <p className="mb-8 text-gray-600">
             {currentStep === 1
               ? "Statement of changing the owner of the motor vehicle"
               : currentStep === 2
@@ -799,7 +799,7 @@ const VehicleTransferForm = () => {
                 <button
                   type="button"
                   onClick={handlePrevStep}
-                  className="text-gray-600 hover:text-gray-800 font-medium flex items-center">
+                  className="flex items-center font-medium text-gray-600 hover:text-gray-800">
                   <svg
                     className="w-5 h-5 mr-2"
                     fill="none"
@@ -817,7 +817,7 @@ const VehicleTransferForm = () => {
               ) : (
                 <Link
                   to="/dashboard"
-                  className="text-gray-600 hover:text-gray-800 font-medium flex items-center">
+                  className="flex items-center font-medium text-gray-600 hover:text-gray-800">
                   <svg
                     className="w-5 h-5 mr-2"
                     fill="none"
@@ -835,7 +835,7 @@ const VehicleTransferForm = () => {
               )}
               <button
                 type="submit"
-                className="bg-orange-500 text-white px-6 py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center">
+                className="flex items-center px-6 py-2 text-white transition-colors bg-orange-500 rounded-md hover:bg-orange-600">
                 {currentStep < steps.length ? (
                   <>
                     Next step
