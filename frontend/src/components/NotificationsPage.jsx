@@ -27,10 +27,10 @@ const NotificationsPage = () => {
           <img src={Logo} alt="TransferEase" className="h-8" />
         </div>
 
-        <nav className="mt-8 px-4">
+        <nav className="px-4 mt-8">
           <Link
             to="/admin/dashboard"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+            className="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -48,7 +48,7 @@ const NotificationsPage = () => {
 
           <Link
             to="/admin/transfers"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -66,7 +66,7 @@ const NotificationsPage = () => {
 
           <Link
             to="/admin/vehicles"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -84,7 +84,7 @@ const NotificationsPage = () => {
 
           <Link
             to="/admin/owners"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -102,7 +102,7 @@ const NotificationsPage = () => {
 
           <Link
             to="/admin/statistics"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -120,7 +120,7 @@ const NotificationsPage = () => {
 
           <Link
             to="/admin/notifications"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-blue-600 rounded-lg bg-blue-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -138,7 +138,7 @@ const NotificationsPage = () => {
 
           <Link
             to="/admin/add-admin"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -155,10 +155,10 @@ const NotificationsPage = () => {
           </Link>
         </nav>
 
-        <div className="mt-auto px-4 py-6">
+        <div className="px-4 py-6 mt-auto">
           <button
             onClick={() => navigate("/admin")}
-            className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg w-full">
+            className="flex items-center w-full px-4 py-3 text-red-600 rounded-lg hover:bg-red-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -179,12 +179,12 @@ const NotificationsPage = () => {
       {/* Main Content */}
       <div className="flex-1 p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center justify-between mb-8">
           <div className="relative">
             <input
               type="text"
               placeholder="Search"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
+              className="py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
@@ -250,7 +250,7 @@ const NotificationsPage = () => {
         <div className="space-y-4">
           {/* Push Notifications Banner */}
           {!pushNotifications && (
-            <div className="bg-orange-50 border border-orange-100 rounded-lg p-4">
+            <div className="p-4 border border-orange-100 rounded-lg bg-orange-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <svg
@@ -274,7 +274,7 @@ const NotificationsPage = () => {
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={handleAllowNotifications}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                    className="px-4 py-2 text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600">
                     Allow push notifications
                   </button>
                   <button
@@ -289,7 +289,7 @@ const NotificationsPage = () => {
 
           {/* Security Alert */}
           {showAlert && (
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="p-4 bg-white border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <svg
