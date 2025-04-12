@@ -14,18 +14,18 @@
 
 @layer components {
   .container {
-    @apply max-w-7xl mx-auto;
+    @apply mx-auto max-w-7xl;
   }
   
   .btn {
-    @apply px-6 py-3 rounded-md transition-colors duration-200;
+    @apply px-6 py-3 transition-colors duration-200 rounded-md;
   }
   
   .btn-primary {
-    @apply bg-orange-500 text-white hover:bg-orange-600;
+    @apply text-white bg-orange-500 hover:bg-orange-600;
   }
   
   .btn-secondary {
-    @apply bg-gray-900 text-white hover:bg-gray-800;
+    @apply text-white bg-gray-900 hover:bg-gray-800;
   }
 }
