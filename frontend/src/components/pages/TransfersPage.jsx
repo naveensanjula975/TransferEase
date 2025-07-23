@@ -1,29 +1,94 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/logo-1 2.png";
+import { Link } from "react-router-dom";
+import Logo from "../../assets/logo-1 2.png";
 
-const OwnersPage = () => {
-  const navigate = useNavigate();
-
-  // Sample owners data
-  const owners = [
+const TransfersPage = () => {
+  // Sample transfer data
+  const transfers = [
     {
-      id: "1",
-      name: "Nimal Kamal",
-      email: "nimal@gmail.com",
-      nicNumber: "199050402423",
-      registeredDate: "16/04/24",
-      noOfVehicles: "02",
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "To Verify",
+      fee: "Rs 800",
     },
     {
-      id: "2",
-      name: "Nimal Kamal",
-      email: "nimal@gmail.com",
-      nicNumber: "199050402423",
-      registeredDate: "16/04/24",
-      noOfVehicles: "01",
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "To Verify",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
+    },
+    {
+      transferId: "00001",
+      vehicleNumber: "CAX-4589",
+      type: "Car",
+      date: "14 Apr 2024",
+      status: "Completed",
+      fee: "Rs 800",
     },
   ];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "To Verify":
+        return "bg-purple-100 text-purple-600";
+      case "Completed":
+        return "bg-emerald-100 text-emerald-600";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -54,7 +119,7 @@ const OwnersPage = () => {
 
           <Link
             to="/admin/transfers"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -90,7 +155,7 @@ const OwnersPage = () => {
 
           <Link
             to="/admin/owners"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -189,8 +254,8 @@ const OwnersPage = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Enter NIC Number"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
+              placeholder="Search"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
@@ -252,57 +317,43 @@ const OwnersPage = () => {
           </div>
         </div>
 
-        {/* Vehicle Owners Table */}
+        {/* Transfers Table */}
         <div className="bg-white rounded-lg shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">Vehicle Owners</h2>
+            <h2 className="text-xl font-semibold">Transfers</h2>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-sm text-gray-500 border-b">
-                  <th className="px-6 py-4">Owner</th>
-                  <th className="px-6 py-4">NIC Number</th>
-                  <th className="px-6 py-4">Registered Date</th>
-                  <th className="px-6 py-4">No. Vehicles</th>
+                  <th className="px-6 py-4">Transfer ID</th>
+                  <th className="px-6 py-4">Vehicle Number</th>
+                  <th className="px-6 py-4">TYPE</th>
+                  <th className="px-6 py-4">DATE</th>
+                  <th className="px-6 py-4">STATUS</th>
+                  <th className="px-6 py-4">Transfer Fee</th>
                   <th className="px-6 py-4"></th>
                 </tr>
               </thead>
               <tbody>
-                {owners.map((owner, index) => (
+                {transfers.map((transfer, index) => (
                   <tr key={index} className="border-b last:border-b-0">
+                    <td className="px-6 py-4">{transfer.transferId}</td>
+                    <td className="px-6 py-4">{transfer.vehicleNumber}</td>
+                    <td className="px-6 py-4">{transfer.type}</td>
+                    <td className="px-6 py-4">{transfer.date}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {owner.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {owner.email}
-                          </div>
-                        </div>
-                      </div>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                          transfer.status
+                        )}`}>
+                        {transfer.status}
+                      </span>
                     </td>
-                    <td className="px-6 py-4">{owner.nicNumber}</td>
-                    <td className="px-6 py-4">{owner.registeredDate}</td>
-                    <td className="px-6 py-4">{owner.noOfVehicles}</td>
+                    <td className="px-6 py-4">{transfer.fee}</td>
                     <td className="px-6 py-4">
-                      <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                      <button className="px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600">
                         More Details
                       </button>
                     </td>
@@ -352,4 +403,4 @@ const OwnersPage = () => {
   );
 };
 
-export default OwnersPage;
+export default TransfersPage;

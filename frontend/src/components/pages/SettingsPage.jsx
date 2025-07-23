@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/logo-1 2.png";
+import Logo from "../../assets/logo-1 2.png";
 
 const SettingsPage = () => {
   const navigate = useNavigate();

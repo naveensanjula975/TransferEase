@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "./shared/Navbar";
+import Navbar from "../shared/Navbar";
 
 const VehicleTransferForm = () => {
   const [currentStep, setCurrentStep] = useState(1);

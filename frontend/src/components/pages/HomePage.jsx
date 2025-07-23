@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Toyota from "../assets/Toyota.png";
-import Car1 from "../assets/BmwPic.png";
-import Car2 from "../assets/SuvPic.png";
-import Logo from "../assets/logo-1 2.png";
+import Toyota from "../../assets/Toyota.png";
+import Car1 from "../../assets/BmwPic.png";
+import Car2 from "../../assets/SuvPic.png";
+import Logo from "../../assets/logo-1 2.png";
 
 const HomePage = () => {
   return (

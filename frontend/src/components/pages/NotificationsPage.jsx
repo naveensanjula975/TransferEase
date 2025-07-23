@@ -1,39 +1,22 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/logo-1 2.png";
+import Logo from "../../assets/logo-1 2.png";
 
-const VehiclesPage = () => {
+const NotificationsPage = () => {
   const navigate = useNavigate();
+  const [pushNotifications, setPushNotifications] = useState(false);
+  const [showAlert, setShowAlert] = useState(true);
 
-  // Sample vehicles data
-  const vehicles = [
-    {
-      id: "00001",
-      model: "Mini Cooper",
-      vehicleNumber: "CAX-4589",
-      date: "14 Apr 2024",
-      type: "Car",
-      status: "Completed",
-    },
-    {
-      id: "00002",
-      model: "Mini Cooper",
-      vehicleNumber: "CAX-4589",
-      date: "14 Apr 2024",
-      type: "Van",
-      status: "Processing",
-    },
-  ];
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Processing":
-        return "bg-purple-100 text-purple-600";
-      case "Completed":
-        return "bg-emerald-100 text-emerald-600";
-      default:
-        return "bg-gray-100 text-gray-600";
+  const handleAllowNotifications = () => {
+    setPushNotifications(true);
+    // Here you would typically request browser notification permissions
+    if ("Notification" in window) {
+      Notification.requestPermission();
     }
+  };
+
+  const handleDismissAlert = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -44,10 +27,10 @@ const VehiclesPage = () => {
           <img src={Logo} alt="TransferEase" className="h-8" />
         </div>
 
-        <nav className="mt-8 px-4">
+        <nav className="px-4 mt-8">
           <Link
             to="/admin/dashboard"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+            className="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -65,7 +48,7 @@ const VehiclesPage = () => {
 
           <Link
             to="/admin/transfers"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -83,7 +66,7 @@ const VehiclesPage = () => {
 
           <Link
             to="/admin/vehicles"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -101,7 +84,7 @@ const VehiclesPage = () => {
 
           <Link
             to="/admin/owners"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -119,7 +102,7 @@ const VehiclesPage = () => {
 
           <Link
             to="/admin/statistics"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -137,7 +120,7 @@ const VehiclesPage = () => {
 
           <Link
             to="/admin/notifications"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-blue-600 rounded-lg bg-blue-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -155,7 +138,7 @@ const VehiclesPage = () => {
 
           <Link
             to="/admin/add-admin"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 mt-2 text-gray-600 rounded-lg hover:bg-gray-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -172,10 +155,10 @@ const VehiclesPage = () => {
           </Link>
         </nav>
 
-        <div className="mt-auto px-4 py-6">
+        <div className="px-4 py-6 mt-auto">
           <button
             onClick={() => navigate("/admin")}
-            className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg w-full">
+            className="flex items-center w-full px-4 py-3 text-red-600 rounded-lg hover:bg-red-50">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -196,12 +179,12 @@ const VehiclesPage = () => {
       {/* Main Content */}
       <div className="flex-1 p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center justify-between mb-8">
           <div className="relative">
             <input
               type="text"
-              placeholder="Enter Vehicle Number (Ex: CAX-5489)"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
+              placeholder="Search"
+              className="py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
@@ -263,84 +246,116 @@ const VehiclesPage = () => {
           </div>
         </div>
 
-        {/* Vehicles Table */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">Vehicles</h2>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-sm text-gray-500 border-b">
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">Model</th>
-                  <th className="px-6 py-4">Vehicle Number</th>
-                  <th className="px-6 py-4">DATE</th>
-                  <th className="px-6 py-4">TYPE</th>
-                  <th className="px-6 py-4">STATUS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vehicles.map((vehicle, index) => (
-                  <tr key={index} className="border-b last:border-b-0">
-                    <td className="px-6 py-4">{vehicle.id}</td>
-                    <td className="px-6 py-4">{vehicle.model}</td>
-                    <td className="px-6 py-4">{vehicle.vehicleNumber}</td>
-                    <td className="px-6 py-4">{vehicle.date}</td>
-                    <td className="px-6 py-4">{vehicle.type}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                          vehicle.status
-                        )}`}>
-                        {vehicle.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="px-6 py-4 flex items-center justify-between border-t">
-            <p className="text-sm text-gray-500">Showing 1-09 of 78</p>
-            <div className="flex items-center space-x-2">
-              <button className="p-2 rounded-lg hover:bg-gray-100">
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button className="p-2 rounded-lg hover:bg-gray-100">
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+        {/* Notifications Content */}
+        <div className="space-y-4">
+          {/* Push Notifications Banner */}
+          {!pushNotifications && (
+            <div className="p-4 border border-orange-100 rounded-lg bg-orange-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <svg
+                    className="w-5 h-5 text-orange-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-sm text-gray-800">
+                      Turn on push notifications to know when transfer vehicles.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={handleAllowNotifications}
+                    className="px-4 py-2 text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600">
+                    Allow push notifications
+                  </button>
+                  <button
+                    onClick={() => setPushNotifications(true)}
+                    className="text-gray-500 hover:text-gray-700">
+                    Dismiss
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Security Alert */}
+          {showAlert && (
+            <div className="p-4 bg-white border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <svg
+                    className="w-5 h-5 text-red-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Account Security Alert:
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Suspicious login detected. Verify recent activity to
+                      secure your account.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => navigate("/admin/security")}
+                    className="flex items-center text-blue-600 hover:text-blue-700">
+                    Check Now
+                    <svg
+                      className="w-4 h-4 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleDismissAlert}
+                    className="text-gray-400 hover:text-gray-600">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default VehiclesPage;
+export default NotificationsPage;

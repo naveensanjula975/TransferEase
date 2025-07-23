@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,8 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
-import Logo from "../assets/logo-1 2.png";
+import Logo from "../../assets/logo-1 2.png";
 
 // Register ChartJS components
 ChartJS.register(
@@ -24,83 +24,83 @@ ChartJS.register(
   Legend
 );
 
-const StatisticsPage = () => {
+const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [timeRange, setTimeRange] = useState("One Year");
+  const [activeTab, setActiveTab] = useState("Monthly");
 
-  // Chart data
-  const data = {
-    labels: [
-      "01",
-      "02",
-      "03",
-      "04",
-      "05",
-      "06",
-      "07",
-      "08",
-      "09",
-      "10",
-      "11",
-      "12",
-    ],
+  // Sample data for the line chart
+  const chartData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"],
     datasets: [
       {
-        label: "Transfers",
-        data: [200, 50, 200, 50, 400, 200, 300, 150, 300, 100, 400, 200],
-        borderColor: "#F59E0B",
-        backgroundColor: "#F59E0B",
+        label: "Monthly Transfers",
+        data: [180, 120, 80, 110, 160, 130, 140, 170],
+        borderColor: "#f97316",
         tension: 0.4,
-        pointStyle: false,
+        fill: false,
       },
     ],
   };
 
-  // Chart options
-  const options = {
+  const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 8,
-          usePointStyle: true,
-          pointStyle: "circle",
-        },
-      },
-      title: {
         display: false,
       },
     },
     scales: {
-      x: {
+      y: {
+        beginAtZero: true,
         grid: {
-          display: true,
-          color: "#F3F4F6",
-        },
-        ticks: {
-          color: "#6B7280",
+          color: "#f3f4f6",
         },
       },
-      y: {
+      x: {
         grid: {
-          display: true,
-          color: "#F3F4F6",
+          display: false,
         },
-        ticks: {
-          color: "#6B7280",
-          callback: function (value) {
-            return value;
-          },
-        },
-        min: 0,
-        max: 400,
-        stepSize: 100,
       },
     },
   };
+
+  // Sample data for latest transfers
+  const latestTransfers = [
+    {
+      id: "3467 5434",
+      fullName: "Nimal Kamal",
+      date: "15 April 2024",
+      type: "Van",
+      fee: "LKR 800",
+    },
+    {
+      id: "3467 5434",
+      fullName: "Nimal Kamal",
+      date: "15 April 2024",
+      type: "Car",
+      fee: "LKR 800",
+    },
+    {
+      id: "3467 5434",
+      fullName: "Nimal Kamal",
+      date: "15 April 2024",
+      type: "Van",
+      fee: "LKR 800",
+    },
+    {
+      id: "3467 5434",
+      fullName: "Nimal Kamal",
+      date: "15 April 2024",
+      type: "Van",
+      fee: "LKR 800",
+    },
+  ];
+
+  // Sample data for transfer review
+  const transferReviews = [
+    { vehicleNumber: "CAX-5603", date: "april 14" },
+    { vehicleNumber: "ABC-8912", date: "april 14" },
+  ];
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -113,7 +113,7 @@ const StatisticsPage = () => {
         <nav className="mt-8 px-4">
           <Link
             to="/admin/dashboard"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -185,7 +185,7 @@ const StatisticsPage = () => {
 
           <Link
             to="/admin/statistics"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -220,7 +220,7 @@ const StatisticsPage = () => {
           </Link>
 
           <Link
-            to="/admin/add-admin"
+            to="/admin/settings"
             className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
             <svg
               className="w-5 h-5 mr-3"
@@ -267,7 +267,7 @@ const StatisticsPage = () => {
             <input
               type="text"
               placeholder="Search"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
@@ -329,28 +329,150 @@ const StatisticsPage = () => {
           </div>
         </div>
 
-        {/* Statistics Content */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">Statistic</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Vehicle Ownership Transfer
-              </p>
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 gap-8">
+          {/* Latest Transfers */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Latest Transfers</h2>
+              <Link
+                to="/admin/transfers"
+                className="text-blue-600 text-sm hover:underline">
+                View All
+              </Link>
             </div>
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="One Year">One Year</option>
-              <option value="Six Months">Six Months</option>
-              <option value="Three Months">Three Months</option>
-            </select>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-sm text-gray-500">
+                    <th className="pb-4">Full Name</th>
+                    <th className="pb-4">ID Number</th>
+                    <th className="pb-4">Date</th>
+                    <th className="pb-4">Type</th>
+                    <th className="pb-4">Fee</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {latestTransfers.map((transfer, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="py-4 flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                        </div>
+                        {transfer.fullName}
+                      </td>
+                      <td className="py-4">{transfer.id}</td>
+                      <td className="py-4">{transfer.date}</td>
+                      <td className="py-4">{transfer.type}</td>
+                      <td className="py-4 text-blue-600">{transfer.fee}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Chart */}
-          <div className="h-[400px]">
-            <Line data={data} options={options} />
+          {/* Statistics and Transfer Review */}
+          <div className="grid grid-cols-2 gap-8">
+            {/* Transfer Statistics */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">
+                  Transfer statistics
+                </h2>
+                <p className="text-sm text-gray-500">
+                  monthly transfer: 100 vehicles
+                </p>
+              </div>
+
+              <div className="flex space-x-4 mb-6">
+                <button
+                  className={`px-4 py-2 rounded-full text-sm ${
+                    activeTab === "Weekly" ? "bg-gray-200" : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => setActiveTab("Weekly")}>
+                  Weekly
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-full text-sm ${
+                    activeTab === "Monthly"
+                      ? "bg-orange-500 text-white"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => setActiveTab("Monthly")}>
+                  Monthly
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-full text-sm ${
+                    activeTab === "Annual" ? "bg-gray-200" : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => setActiveTab("Annual")}>
+                  Annual
+                </button>
+              </div>
+
+              <div className="h-64">
+                <Line data={chartData} options={chartOptions} />
+              </div>
+            </div>
+
+            {/* Transfer Review */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-semibold mb-6">Transfer Review</h2>
+
+              <div className="space-y-4">
+                {transferReviews.map((review, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
+                          <svg
+                            className="w-6 h-6 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium">Vehicle Transfer</p>
+                          <p className="text-sm text-gray-500">
+                            {review.vehicleNumber}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            activity from {review.date}
+                          </p>
+                        </div>
+                      </div>
+                      <button className="text-sm text-blue-600 hover:underline">
+                        View Details →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <button className="w-full py-2 text-sm text-white bg-emerald-400 rounded-lg hover:bg-emerald-500">
+                  All Requests →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -358,4 +480,4 @@ const StatisticsPage = () => {
   );
 };
 
-export default StatisticsPage;
+export default AdminDashboard;

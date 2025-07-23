@@ -1,87 +1,33 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Logo from "../assets/logo-1 2.png";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../../assets/logo-1 2.png";
 
-const TransfersPage = () => {
-  // Sample transfer data
-  const transfers = [
+const VehiclesPage = () => {
+  const navigate = useNavigate();
+
+  // Sample vehicles data
+  const vehicles = [
     {
-      transferId: "00001",
+      id: "00001",
+      model: "Mini Cooper",
       vehicleNumber: "CAX-4589",
-      type: "Car",
       date: "14 Apr 2024",
-      status: "To Verify",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
       type: "Car",
-      date: "14 Apr 2024",
-      status: "To Verify",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
       status: "Completed",
-      fee: "Rs 800",
     },
     {
-      transferId: "00001",
+      id: "00002",
+      model: "Mini Cooper",
       vehicleNumber: "CAX-4589",
-      type: "Car",
       date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
+      type: "Van",
+      status: "Processing",
     },
   ];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "To Verify":
+      case "Processing":
         return "bg-purple-100 text-purple-600";
       case "Completed":
         return "bg-emerald-100 text-emerald-600";
@@ -119,7 +65,7 @@ const TransfersPage = () => {
 
           <Link
             to="/admin/transfers"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -137,7 +83,7 @@ const TransfersPage = () => {
 
           <Link
             to="/admin/vehicles"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
+            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
             <svg
               className="w-5 h-5 mr-3"
               fill="none"
@@ -254,8 +200,8 @@ const TransfersPage = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+              placeholder="Enter Vehicle Number (Ex: CAX-5489)"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
@@ -317,45 +263,39 @@ const TransfersPage = () => {
           </div>
         </div>
 
-        {/* Transfers Table */}
+        {/* Vehicles Table */}
         <div className="bg-white rounded-lg shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">Transfers</h2>
+            <h2 className="text-xl font-semibold">Vehicles</h2>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-sm text-gray-500 border-b">
-                  <th className="px-6 py-4">Transfer ID</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">Model</th>
                   <th className="px-6 py-4">Vehicle Number</th>
-                  <th className="px-6 py-4">TYPE</th>
                   <th className="px-6 py-4">DATE</th>
+                  <th className="px-6 py-4">TYPE</th>
                   <th className="px-6 py-4">STATUS</th>
-                  <th className="px-6 py-4">Transfer Fee</th>
-                  <th className="px-6 py-4"></th>
                 </tr>
               </thead>
               <tbody>
-                {transfers.map((transfer, index) => (
+                {vehicles.map((vehicle, index) => (
                   <tr key={index} className="border-b last:border-b-0">
-                    <td className="px-6 py-4">{transfer.transferId}</td>
-                    <td className="px-6 py-4">{transfer.vehicleNumber}</td>
-                    <td className="px-6 py-4">{transfer.type}</td>
-                    <td className="px-6 py-4">{transfer.date}</td>
+                    <td className="px-6 py-4">{vehicle.id}</td>
+                    <td className="px-6 py-4">{vehicle.model}</td>
+                    <td className="px-6 py-4">{vehicle.vehicleNumber}</td>
+                    <td className="px-6 py-4">{vehicle.date}</td>
+                    <td className="px-6 py-4">{vehicle.type}</td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                          transfer.status
+                          vehicle.status
                         )}`}>
-                        {transfer.status}
+                        {vehicle.status}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">{transfer.fee}</td>
-                    <td className="px-6 py-4">
-                      <button className="px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600">
-                        More Details
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -403,4 +343,4 @@ const TransfersPage = () => {
   );
 };
 
-export default TransfersPage;
+export default VehiclesPage;
