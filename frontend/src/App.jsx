@@ -12,7 +12,8 @@ import {
   OwnersPage, 
   StatisticsPage,
   NotificationsPage,
-  SettingsPage
+  SettingsPage,
+  UserProfile
 } from "./components/pages";
 
 import { 
@@ -22,13 +23,17 @@ import {
 } from "./components/auth";
 
 import { 
-  AdminDashboard,
-  Dashboard 
+  Dashboard,
+  AdminDashboard 
 } from "./components/dashboard";
 
 import { 
   VehicleTransferForm 
 } from "./components/forms";
+
+import { 
+  Navbar 
+} from "./components/shared";
 
 import "./App.css";
 
@@ -63,6 +68,11 @@ function App() {
             <Route path="/dashboard" element={
               <RequireUser>
                 <Dashboard />
+              </RequireUser>
+            } />
+            <Route path="/profile" element={
+              <RequireUser>
+                <UserProfile />
               </RequireUser>
             } />
             <Route path="/transfer" element={

@@ -105,7 +105,7 @@ const Navbar = ({ isLoggedIn = true }) => {
             </div>
 
             {/* Profile Section */}
-            <div className="flex items-center space-x-3 sm:space-x-4 border-l border-white/10 pl-3 sm:pl-4">
+            <Link to="/profile" className="flex items-center space-x-3 sm:space-x-4 border-l border-white/10 pl-3 sm:pl-4 hover:bg-white/10 p-2 rounded-md transition-colors">
               <img
                 src={DefaultAvatar}
                 alt="Profile"
@@ -115,7 +115,7 @@ const Navbar = ({ isLoggedIn = true }) => {
                 <span className="text-sm font-medium">John Doe</span>
                 <span className="text-xs text-gray-400">Administrator</span>
               </div>
-            </div>
+            </Link>
 
             {/* Mobile menu button */}
             <button

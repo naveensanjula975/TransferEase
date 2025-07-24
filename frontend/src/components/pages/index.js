@@ -7,3 +7,4 @@ export { default as OwnersPage } from './OwnersPage.jsx';
 export { default as StatisticsPage } from './StatisticsPage.jsx';
 export { default as NotificationsPage } from './NotificationsPage.jsx';
 export { default as SettingsPage } from './SettingsPage.jsx';
+export { default as UserProfile } from './UserProfile.jsx';
