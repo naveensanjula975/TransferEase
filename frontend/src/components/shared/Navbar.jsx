@@ -105,17 +105,19 @@ const Navbar = ({ isLoggedIn = true }) => {
             </div>
 
             {/* Profile Section */}
-            <Link to="/profile" className="flex items-center space-x-3 sm:space-x-4 border-l border-white/10 pl-3 sm:pl-4 hover:bg-white/10 p-2 rounded-md transition-colors">
-              <img
-                src={DefaultAvatar}
-                alt="Profile"
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full ring-2 ring-white/20"
-              />
-              <div className="hidden sm:flex flex-col">
-                <span className="text-sm font-medium">John Doe</span>
-                <span className="text-xs text-gray-400">Administrator</span>
-              </div>
-            </Link>
+            <div className="flex items-center space-x-3 sm:space-x-4 border-l border-white/10 pl-3 sm:pl-4">
+              <Link to="/profile" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <img
+                  src={DefaultAvatar}
+                  alt="Profile"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full ring-2 ring-white/20"
+                />
+                <div className="hidden sm:flex flex-col">
+                  <span className="text-sm font-medium">John Doe</span>
+                  <span className="text-xs text-gray-400">Administrator</span>
+                </div>
+              </Link>
+            </div>
 
             {/* Mobile menu button */}
             <button
@@ -145,6 +147,11 @@ const Navbar = ({ isLoggedIn = true }) => {
                 to="/dashboard"
                 className="block px-3 py-2 text-base font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-md">
                 Dashboard
+              </Link>
+              <Link
+                to="/profile"
+                className="block px-3 py-2 text-base font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-md">
+                Profile
               </Link>
               <Link
                 to="/transfers"

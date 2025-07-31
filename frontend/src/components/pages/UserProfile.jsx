@@ -1,296 +1,244 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import DefaultAvatar from "../../assets/default-avatar.png";
+import { Navbar } from "../shared";
 
 const UserProfile = () => {
-  const { user, logout } = useAuth();
-  const [registrationNumber, setRegistrationNumber] = useState('');
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { user, updateProfile } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+    nic: user?.nic || "",
+  });
+  const [loading, setLoading] = useState(false);
 
-  // Mock data for vehicle transfers
-  const vehicleTransfers = [
-    {
-      id: 1,
-      vehicleNumber: 'CAX-5603',
-      type: 'Vehicle Transfer',
-      activity: 'activity from april 14',
-      status: 'pending'
-    },
-    {
-      id: 2,
-      vehicleNumber: 'ABC-8912',
-      type: 'Vehicle Transfer',
-      activity: 'activity from april 14',
-      status: 'pending'
-    },
-    {
-      id: 3,
-      vehicleNumber: 'JT-4826',
-      type: 'Vehicle Transfer',
-      activity: 'activity from april 14',
-      status: 'pending'
-    }
-  ];
-
-  // Mock data for user vehicles
-  const userVehicles = [
-    {
-      id: 1,
-      model: 'Mini Cooper',
-      type: 'Hatchback',
-      users: '1 User',
-      image: '/src/assets/mini-cooper.png'
-    },
-    {
-      id: 2,
-      model: 'Mini Cooper',
-      type: 'Hatchback',
-      users: '1 User',
-      image: '/src/assets/mini-cooper.png'
-    },
-    {
-      id: 3,
-      model: 'Mini Cooper',
-      type: 'Hatchback',
-      users: '1 User',
-      image: '/src/assets/mini-cooper.png'
-    },
-    {
-      id: 4,
-      model: 'Mini Cooper',
-      type: 'Hatchback',
-      users: '1 User',
-      image: '/src/assets/mini-cooper.png'
-    }
-  ];
-
-  const handleAccept = (id) => {
-    console.log('Accepted transfer:', id);
-    // Handle accept logic
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleReject = (id) => {
-    console.log('Rejected transfer:', id);
-    // Handle reject logic
-  };
-
-  const handleRequestTransfer = () => {
-    if (registrationNumber.trim()) {
-      console.log('Requesting transfer for:', registrationNumber);
-      // Handle transfer request logic
-      setRegistrationNumber('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await updateProfile(formData);
+      setIsEditing(false);
+      // Add success notification here if you have a notification system
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      // Add error notification here
+    } finally {
+      setLoading(false);
     }
   };
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'notification', label: 'Notification', icon: '🔔' },
-    { id: 'security', label: 'Security', icon: '🔒' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
-    { id: 'help', label: 'Help', icon: '❓' }
-  ];
+  const handleCancel = () => {
+    setFormData({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      address: user?.address || "",
+      nic: user?.nic || "",
+    });
+    setIsEditing(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg">
-        {/* Header */}
-        <div className="bg-gray-800 text-white p-4">
-          <h1 className="text-xl font-bold">TransferEase</h1>
-        </div>
-
-        {/* User Profile Section */}
-        <div className="p-6 border-b">
-          <div className="text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <div className="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center">
-                <span className="text-2xl">👤</span>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8">
+            <div className="flex items-center space-x-6">
+              <img
+                src={DefaultAvatar}
+                alt="Profile"
+                className="w-20 h-20 rounded-full ring-4 ring-white/20"
+              />
+              <div className="text-white">
+                <h1 className="text-2xl font-bold">{user?.name || "User"}</h1>
+                <p className="text-orange-100">{user?.email}</p>
+                <p className="text-orange-100 text-sm">Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}</p>
               </div>
             </div>
-            <h3 className="font-semibold text-gray-800">
-              {user?.name || 'Kumara Sangakkara'}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {user?.nic || '952378652v'}
-            </p>
           </div>
-        </div>
 
-        {/* Navigation Menu */}
-        <nav className="p-4">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg text-left transition-colors ${
-                activeTab === item.id
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        {/* Logout Button */}
-        <div className="absolute bottom-6 left-4 right-4">
-          <button
-            onClick={logout}
-            className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center space-x-2"
-          >
-            <span>🚪</span>
-            <span>Log out</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-        {activeTab === 'dashboard' && (
-          <>
-            {/* User Profile Header */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">User Profile</h2>
+          {/* Content */}
+          <div className="px-6 py-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors flex items-center">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Profile
+                </button>
+              )}
             </div>
 
-            {/* Vehicle Transfer Requests */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {vehicleTransfers.map((transfer) => (
-                <div key={transfer.id} className="bg-white p-6 rounded-lg shadow-md">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">🚗</span>
-                      <div>
-                        <p className="text-sm text-gray-600">{transfer.type}</p>
-                      </div>
-                    </div>
-                    <button className="text-gray-400 hover:text-gray-600">⋮</button>
+            {isEditing ? (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
+                    />
                   </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {transfer.vehicleNumber}
-                  </h3>
-                  
-                  <p className="text-sm text-gray-600 mb-4">{transfer.activity}</p>
-                  
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleAccept(transfer.id)}
-                      className="px-4 py-2 bg-green-500 text-white text-sm rounded-md hover:bg-green-600 transition-colors"
-                    >
-                      Accept
-                    </button>
-                    <button
-                      onClick={() => handleReject(transfer.id)}
-                      className="px-4 py-2 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition-colors"
-                    >
-                      Reject
-                    </button>
+
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
+                    />
                   </div>
-                  
-                  <button className="w-full mt-4 text-gray-600 text-sm flex items-center justify-center space-x-1 hover:text-gray-800">
-                    <span>View Details</span>
-                    <span>→</span>
-                  </button>
+
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="nic" className="block text-sm font-medium text-gray-700 mb-1">
+                      NIC Number
+                    </label>
+                    <input
+                      type="text"
+                      id="nic"
+                      name="nic"
+                      value={formData.nic}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Transfer Request Section */}
-            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-              <p className="text-gray-700 mb-4">
-                Welcome to our vehicle transfer request service! Please insert the registration number of your requesting vehicle here to start the smooth transition of your vehicle's ownership. Afterward, the owner of the vehicle will concern on your request.
-              </p>
-              
-              <div className="flex space-x-4">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Vehicle Registration Number
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
                   </label>
-                  <input
-                    type="text"
-                    value={registrationNumber}
-                    onChange={(e) => setRegistrationNumber(e.target.value)}
-                    placeholder="CAX-5678"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  <textarea
+                    id="address"
+                    name="address"
+                    rows="3"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
-                <div className="flex items-end">
+
+                <div className="flex justify-end space-x-4">
                   <button
-                    onClick={handleRequestTransfer}
-                    className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center space-x-2"
-                  >
-                    <span>Request Transfer</span>
-                    <span>→</span>
+                    type="button"
+                    onClick={handleCancel}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    {loading ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
-              </div>
-            </div>
-
-            {/* My Vehicles Section */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold text-gray-800 mb-6">My Vehicles</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {userVehicles.map((vehicle) => (
-                  <div key={vehicle.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-gray-800">{vehicle.model}</h4>
-                      <button className="text-gray-400 hover:text-red-500">♡</button>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 mb-4">{vehicle.type}</p>
-                    
-                    <div className="w-full h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                      <span className="text-4xl">🚗</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1 text-sm text-gray-600">
-                        <span>👤</span>
-                        <span>{vehicle.users}</span>
-                      </div>
-                      <button className="text-sm text-blue-600 hover:text-blue-800 flex items-center space-x-1">
-                        <span>Details</span>
-                        <span>→</span>
-                      </button>
-                    </div>
+              </form>
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <p className="text-gray-900">{user?.name || "Not provided"}</p>
                   </div>
-                ))}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <p className="text-gray-900">{user?.email || "Not provided"}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <p className="text-gray-900">{user?.phone || "Not provided"}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">NIC Number</label>
+                    <p className="text-gray-900">{user?.nic || "Not provided"}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <p className="text-gray-900">{user?.address || "Not provided"}</p>
+                </div>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Account Settings */}
+        <div className="bg-white shadow rounded-lg overflow-hidden mt-6">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Account Settings</h3>
+          </div>
+          <div className="px-6 py-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">Change Password</h4>
+                <p className="text-sm text-gray-500">Update your account password</p>
+              </div>
+              <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                Change Password
+              </button>
             </div>
-          </>
-        )}
-
-        {/* Other Tab Content */}
-        {activeTab === 'notification' && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Notifications</h2>
-            <p className="text-gray-600">Your notifications will appear here.</p>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
+                <p className="text-sm text-gray-500">Receive email updates about your transfers</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" defaultChecked />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+              </label>
+            </div>
           </div>
-        )}
-
-        {activeTab === 'security' && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Security</h2>
-            <p className="text-gray-600">Security settings and options.</p>
-          </div>
-        )}
-
-        {activeTab === 'settings' && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Settings</h2>
-            <p className="text-gray-600">Application settings and preferences.</p>
-          </div>
-        )}
-
-        {activeTab === 'help' && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Help</h2>
-            <p className="text-gray-600">Help and support information.</p>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

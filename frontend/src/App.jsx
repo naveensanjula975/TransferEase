@@ -23,17 +23,13 @@ import {
 } from "./components/auth";
 
 import { 
-  Dashboard,
-  AdminDashboard 
-} from "./components/dashboard";
+  AdminDashboard,
+  Dashboard 
+} from "./components/dashboard/index.js";
 
 import { 
   VehicleTransferForm 
 } from "./components/forms";
-
-import { 
-  Navbar 
-} from "./components/shared";
 
 import "./App.css";
 
