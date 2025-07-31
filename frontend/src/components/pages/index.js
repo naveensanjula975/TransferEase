@@ -1,10 +1,16 @@
-// Page components exports
-export { default as HomePage } from './HomePage.jsx';
-export { default as DownloadPage } from './DownloadPage.jsx';
-export { default as TransfersPage } from './TransfersPage.jsx';
-export { default as VehiclesPage } from './VehiclesPage.jsx';
-export { default as OwnersPage } from './OwnersPage.jsx';
-export { default as StatisticsPage } from './StatisticsPage.jsx';
-export { default as NotificationsPage } from './NotificationsPage.jsx';
-export { default as SettingsPage } from './SettingsPage.jsx';
-export { default as UserProfile } from './UserProfile.jsx';
+// Page Components
+export { default as HomePage } from './HomePage';
+export { default as DownloadPage } from './DownloadPage';
+export { default as TransfersPage } from './TransfersPage';
+export { default as VehiclesPage } from './VehiclesPage';
+export { default as OwnersPage } from './OwnersPage';
+export { default as StatisticsPage } from './StatisticsPage';
+export { default as NotificationsPage } from './NotificationsPage';
+export { default as SettingsPage } from './SettingsPage';
+export { default as UserProfile } from './UserProfile';
+
+// Portal Components
+export { default as VehicleTransferPortal } from './VehicleTransferPortal';
+export { default as AdminPortal } from './AdminPortal';
+export { default as PublicResourceCenter } from './PublicResourceCenter';
+export { default as NotificationCenter } from './NotificationCenter';

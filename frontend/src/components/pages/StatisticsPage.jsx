@@ -1,356 +1,418 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-import Logo from "../../assets/logo-1 2.png";
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { useState, useEffect } from 'react';
+import { 
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  PieChart,
+  Calendar,
+  Download,
+  Filter,
+  Users,
+  Car,
+  FileText,
+  DollarSign,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertTriangle
+} from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const StatisticsPage = () => {
-  const navigate = useNavigate();
-  const [timeRange, setTimeRange] = useState("One Year");
+  const { user } = useAuth();
+  const [timeRange, setTimeRange] = useState('last_30_days');
+  const [selectedMetric, setSelectedMetric] = useState('transfers');
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({});
 
-  // Chart data
-  const data = {
-    labels: [
-      "01",
-      "02",
-      "03",
-      "04",
-      "05",
-      "06",
-      "07",
-      "08",
-      "09",
-      "10",
-      "11",
-      "12",
-    ],
-    datasets: [
-      {
-        label: "Transfers",
-        data: [200, 50, 200, 50, 400, 200, 300, 150, 300, 100, 400, 200],
-        borderColor: "#F59E0B",
-        backgroundColor: "#F59E0B",
-        tension: 0.4,
-        pointStyle: false,
+  // Mock statistics data
+  const mockStats = {
+    overview: {
+      totalTransfers: { value: 1247, change: 12.5, trend: 'up' },
+      totalVehicles: { value: 8956, change: 5.2, trend: 'up' },
+      totalOwners: { value: 5643, change: 8.7, trend: 'up' },
+      totalRevenue: { value: 10584000, change: -2.3, trend: 'down' }
+    },
+    transfers: {
+      completed: 856,
+      pending: 234,
+      rejected: 157,
+      daily: [
+        { date: '2025-01-01', completed: 12, pending: 8, rejected: 2 },
+        { date: '2025-01-02', completed: 15, pending: 6, rejected: 3 },
+        { date: '2025-01-03', completed: 18, pending: 12, rejected: 1 },
+        { date: '2025-01-04', completed: 14, pending: 9, rejected: 4 },
+        { date: '2025-01-05', completed: 20, pending: 15, rejected: 2 },
+        { date: '2025-01-06', completed: 16, pending: 7, rejected: 3 },
+        { date: '2025-01-07', completed: 22, pending: 11, rejected: 1 }
+      ]
+    },
+    vehicles: {
+      byCategory: {
+        car: 6234,
+        suv: 1456,
+        motorcycle: 892,
+        van: 374
       },
-    ],
+      byFuelType: {
+        petrol: 4567,
+        diesel: 2234,
+        hybrid: 1890,
+        electric: 265
+      },
+      byYear: {
+        '2020-2024': 3456,
+        '2015-2019': 2987,
+        '2010-2014': 1876,
+        '2005-2009': 637
+      }
+    },
+    revenue: {
+      monthly: [
+        { month: 'Jul 2024', amount: 850000 },
+        { month: 'Aug 2024', amount: 920000 },
+        { month: 'Sep 2024', amount: 1100000 },
+        { month: 'Oct 2024', amount: 950000 },
+        { month: 'Nov 2024', amount: 1050000 },
+        { month: 'Dec 2024', amount: 1200000 },
+        { month: 'Jan 2025', amount: 980000 }
+      ],
+      byService: {
+        transfer_fee: 8500000,
+        documentation: 1200000,
+        inspection: 684000,
+        expedited: 200000
+      }
+    },
+    performance: {
+      averageProcessingTime: 7.2, // days
+      customerSatisfaction: 4.3, // out of 5
+      documentAccuracy: 94.5, // percentage
+      systemUptime: 99.8 // percentage
+    }
   };
 
-  // Chart options
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 8,
-          usePointStyle: true,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: false,
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: true,
-          color: "#F3F4F6",
-        },
-        ticks: {
-          color: "#6B7280",
-        },
-      },
-      y: {
-        grid: {
-          display: true,
-          color: "#F3F4F6",
-        },
-        ticks: {
-          color: "#6B7280",
-          callback: function (value) {
-            return value;
-          },
-        },
-        min: 0,
-        max: 400,
-        stepSize: 100,
-      },
-    },
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => {
+      setStats(mockStats);
+      setIsLoading(false);
+    }, 1000);
+  }, [timeRange]);
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
+      currency: 'LKR',
+      minimumFractionDigits: 0
+    }).format(amount);
   };
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm">
-        <div className="p-4">
-          <img src={Logo} alt="TransferEase" className="h-8" />
-        </div>
+  const formatPercentage = (value) => {
+    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+  };
 
-        <nav className="mt-8 px-4">
-          <Link
-            to="/admin/dashboard"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-            Dashboard
-          </Link>
+  const getTrendIcon = (trend) => {
+    return trend === 'up' ? 
+      <TrendingUp className="h-4 w-4 text-green-500" /> : 
+      <TrendingDown className="h-4 w-4 text-red-500" />;
+  };
 
-          <Link
-            to="/admin/transfers"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              />
-            </svg>
-            Transfers
-          </Link>
+  const getTrendColor = (trend) => {
+    return trend === 'up' ? 'text-green-600' : 'text-red-600';
+  };
 
-          <Link
-            to="/admin/vehicles"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            Vehicles
-          </Link>
-
-          <Link
-            to="/admin/owners"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-            Owners
-          </Link>
-
-          <Link
-            to="/admin/statistics"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-            Statistics
-          </Link>
-
-          <Link
-            to="/admin/notifications"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            Notifications
-          </Link>
-
-          <Link
-            to="/admin/add-admin"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-              />
-            </svg>
-            Add Admin
-          </Link>
-        </nav>
-
-        <div className="mt-auto px-4 py-6">
-          <button
-            onClick={() => navigate("/admin")}
-            className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg w-full">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            Logout
-          </button>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading statistics...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Main Content */}
-      <div className="flex-1 p-8">
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
-            />
-            <svg
-              className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </button>
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Statistics & Analytics</h1>
+              <p className="mt-2 text-gray-600">
+                Comprehensive insights into transfer operations and system performance
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0 flex space-x-3">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="last_7_days">Last 7 Days</option>
+                <option value="last_30_days">Last 30 Days</option>
+                <option value="last_90_days">Last 90 Days</option>
+                <option value="last_year">Last Year</option>
+              </select>
+              <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Statistics Content */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">Statistic</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Vehicle Ownership Transfer
-              </p>
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Transfers</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.overview.totalTransfers.value.toLocaleString()}</p>
+              </div>
+              <div className="p-3 rounded-full bg-blue-100">
+                <FileText className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="One Year">One Year</option>
-              <option value="Six Months">Six Months</option>
-              <option value="Three Months">Three Months</option>
-            </select>
+            <div className="mt-4 flex items-center">
+              {getTrendIcon(stats.overview.totalTransfers.trend)}
+              <span className={`ml-2 text-sm font-medium ${getTrendColor(stats.overview.totalTransfers.trend)}`}>
+                {formatPercentage(stats.overview.totalTransfers.change)}
+              </span>
+              <span className="ml-2 text-sm text-gray-500">vs last period</span>
+            </div>
           </div>
 
-          {/* Chart */}
-          <div className="h-[400px]">
-            <Line data={data} options={options} />
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Vehicles</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.overview.totalVehicles.value.toLocaleString()}</p>
+              </div>
+              <div className="p-3 rounded-full bg-green-100">
+                <Car className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center">
+              {getTrendIcon(stats.overview.totalVehicles.trend)}
+              <span className={`ml-2 text-sm font-medium ${getTrendColor(stats.overview.totalVehicles.trend)}`}>
+                {formatPercentage(stats.overview.totalVehicles.change)}
+              </span>
+              <span className="ml-2 text-sm text-gray-500">vs last period</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Owners</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.overview.totalOwners.value.toLocaleString()}</p>
+              </div>
+              <div className="p-3 rounded-full bg-yellow-100">
+                <Users className="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center">
+              {getTrendIcon(stats.overview.totalOwners.trend)}
+              <span className={`ml-2 text-sm font-medium ${getTrendColor(stats.overview.totalOwners.trend)}`}>
+                {formatPercentage(stats.overview.totalOwners.change)}
+              </span>
+              <span className="ml-2 text-sm text-gray-500">vs last period</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.overview.totalRevenue.value)}</p>
+              </div>
+              <div className="p-3 rounded-full bg-purple-100">
+                <DollarSign className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center">
+              {getTrendIcon(stats.overview.totalRevenue.trend)}
+              <span className={`ml-2 text-sm font-medium ${getTrendColor(stats.overview.totalRevenue.trend)}`}>
+                {formatPercentage(stats.overview.totalRevenue.change)}
+              </span>
+              <span className="ml-2 text-sm text-gray-500">vs last period</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Transfer Status Chart */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Transfer Status Distribution</h3>
+              <PieChart className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 rounded-full bg-green-500 mr-3"></div>
+                  <span className="text-sm font-medium text-gray-700">Completed</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-gray-900">{stats.transfers.completed}</span>
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({((stats.transfers.completed / (stats.transfers.completed + stats.transfers.pending + stats.transfers.rejected)) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 rounded-full bg-yellow-500 mr-3"></div>
+                  <span className="text-sm font-medium text-gray-700">Pending</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-gray-900">{stats.transfers.pending}</span>
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({((stats.transfers.pending / (stats.transfers.completed + stats.transfers.pending + stats.transfers.rejected)) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 rounded-full bg-red-500 mr-3"></div>
+                  <span className="text-sm font-medium text-gray-700">Rejected</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-gray-900">{stats.transfers.rejected}</span>
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({((stats.transfers.rejected / (stats.transfers.completed + stats.transfers.pending + stats.transfers.rejected)) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle Categories Chart */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Vehicle Categories</h3>
+              <BarChart3 className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              {Object.entries(stats.vehicles.byCategory).map(([category, count]) => (
+                <div key={category} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Car className="h-4 w-4 text-gray-400 mr-3" />
+                    <span className="text-sm font-medium text-gray-700 capitalize">{category}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-semibold text-gray-900">{count.toLocaleString()}</span>
+                    <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full" 
+                        style={{ width: `${(count / Math.max(...Object.values(stats.vehicles.byCategory))) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Revenue and Performance Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Monthly Revenue */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Monthly Revenue Trend</h3>
+              <DollarSign className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-3">
+              {stats.revenue.monthly.map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{item.month}</span>
+                  <div className="flex items-center">
+                    <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                      <div 
+                        className="bg-green-600 h-2 rounded-full" 
+                        style={{ width: `${(item.amount / Math.max(...stats.revenue.monthly.map(r => r.amount))) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900 w-20 text-right">
+                      {formatCurrency(item.amount)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Performance Metrics</h3>
+              <BarChart3 className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Avg. Processing Time</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.performance.averageProcessingTime} days</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Customer Satisfaction</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.performance.customerSatisfaction}/5.0</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-600 h-2 rounded-full" style={{ width: '86%' }}></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Document Accuracy</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.performance.documentAccuracy}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-600 h-2 rounded-full" style={{ width: '94.5%' }}></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">System Uptime</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.performance.systemUptime}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-600 h-2 rounded-full" style={{ width: '99.8%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button className="flex items-center justify-center px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
+              <Download className="h-5 w-5 mr-2" />
+              Download Detailed Report
+            </button>
+            <button className="flex items-center justify-center px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
+              <Calendar className="h-5 w-5 mr-2" />
+              Schedule Report
+            </button>
+            <button className="flex items-center justify-center px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
+              <Filter className="h-5 w-5 mr-2" />
+              Custom Analytics
+            </button>
           </div>
         </div>
       </div>

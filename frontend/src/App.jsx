@@ -13,7 +13,11 @@ import {
   StatisticsPage,
   NotificationsPage,
   SettingsPage,
-  UserProfile
+  UserProfile,
+  VehicleTransferPortal,
+  AdminPortal,
+  PublicResourceCenter,
+  NotificationCenter
 } from "./components/pages";
 
 import { 
@@ -128,6 +132,24 @@ function App() {
             <Route path="/notifications" element={
               <RequireAuth>
                 <NotificationsPage />
+              </RequireAuth>
+            } />
+
+            {/* Portal Routes */}
+            <Route path="/portal" element={
+              <RequireUser>
+                <VehicleTransferPortal />
+              </RequireUser>
+            } />
+            <Route path="/admin/portal" element={
+              <RequireAdmin>
+                <AdminPortal />
+              </RequireAdmin>
+            } />
+            <Route path="/resources" element={<PublicResourceCenter />} />
+            <Route path="/notification-center" element={
+              <RequireAuth>
+                <NotificationCenter />
               </RequireAuth>
             } />
 

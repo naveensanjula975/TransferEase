@@ -1,279 +1,216 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { useNotification } from "../../contexts/NotificationContext";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { Eye, EyeOff, Shield, Lock, LogIn } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import MockAuthService from '../../services/mockAuthService';
 
 const AdminLogin = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { adminLogin, isLoading, error, clearError } = useAuth();
-  const { showSuccess, showError } = useNotification();
-  
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    nic: "",
-    employeeId: "",
-    email: "",
-    password: "",
-  });
-  const [formErrors, setFormErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showNotification } = useNotification();
 
-  // Get the redirect path from location state or default to admin dashboard
-  const from = location.state?.from?.pathname || '/admin/dashboard';
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  // Clear auth errors when component mounts
-  useEffect(() => {
-    clearError();
-  }, [clearError]);
-
-  // Show error notification when auth error changes
-  useEffect(() => {
-    if (error) {
-      showError(error);
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    try {
+      // Use the mock authentication service for admin login
+      const authResult = await MockAuthService.adminLogin(data.email, data.password);
+      
+      // Store the admin session token
+      localStorage.setItem('transferease_token', authResult.token);
+      
+      // Login admin with the authentication context
+      login(authResult.user);
+      
+      showNotification('Admin login successful! Welcome to the dashboard.', 'success');
+      navigate('/admin/dashboard');
+      
+    } catch (error) {
+      console.error('Admin login error:', error);
+      showNotification(error.message || 'Login failed. Please contact IT support.', 'error');
+    } finally {
+      setIsLoading(false);
     }
-  }, [error, showError]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    
-    // Clear field error when user starts typing
-    if (formErrors[name]) {
-      setFormErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const errors = {};
-
-    if (!formData.nic.trim()) {
-      errors.nic = 'NIC is required';
-    } else if (!/^\d{9}[vVxX]$/.test(formData.nic)) {
-      errors.nic = 'Invalid NIC format (e.g., 123456789V)';
-    }
-
-    if (!formData.employeeId.trim()) {
-      errors.employeeId = 'Employee ID is required';
-    } else if (!/^EM\d{4,}$/i.test(formData.employeeId)) {
-      errors.employeeId = 'Invalid Employee ID format (e.g., EM0013)';
-    }
-
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Invalid email format';
-    }
-
-    if (!formData.password) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    const result = await adminLogin(formData);
-    
-    if (result.success) {
-      showSuccess('Admin login successful! Welcome to the dashboard.');
-      navigate(from, { replace: true });
-    }
-    // Error handling is done through the error state and useEffect
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex min-h-screen">
-        <div className="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
-          <div className="w-full max-w-sm mx-auto">
-            <div className="mb-8 text-center">
-              <h2 className="text-3xl font-bold text-gray-900">Admin Login</h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Please Enter Your Credentials to Continue
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-red-600 rounded-full flex items-center justify-center">
+            <Shield className="h-6 w-6 text-white" />
+          </div>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            Administrator Login
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Department of Motor Traffic - Vehicle Transfer System
+          </p>
+        </div>
+
+        {/* Security Notice */}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <Shield className="h-5 w-5 text-red-600 mt-0.5 mr-2" />
+            <div>
+              <h3 className="text-sm font-medium text-red-800">Authorized Personnel Only</h3>
+              <p className="text-xs text-red-700 mt-1">
+                This system is for authorized DMT personnel only. All access is logged and monitored.
               </p>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* NIC Field */}
-              <div>
-                <label
-                  htmlFor="nic"
-                  className="block text-sm font-medium text-gray-700">
-                  NIC
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="nic"
-                    name="nic"
-                    type="text"
-                    value={formData.nic}
-                    onChange={handleChange}
-                    placeholder="Ex: 98653245v"
-                    className={`block w-full px-3 py-2 placeholder-gray-400 border rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
-                      formErrors.nic ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {formErrors.nic && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.nic}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Employee ID Field */}
-              <div>
-                <label
-                  htmlFor="employeeId"
-                  className="block text-sm font-medium text-gray-700">
-                  Employee ID
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="employeeId"
-                    name="employeeId"
-                    type="text"
-                    value={formData.employeeId}
-                    onChange={handleChange}
-                    placeholder="EM0013"
-                    className={`block w-full px-3 py-2 placeholder-gray-400 border rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
-                      formErrors.employeeId ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {formErrors.employeeId && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {formErrors.employeeId}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Ex: admin@transferease.com"
-                    className={`block w-full px-3 py-2 placeholder-gray-400 border rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
-                      formErrors.email ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {formErrors.email && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="relative mt-1">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter Password"
-                    className={`block w-full px-3 py-2 placeholder-gray-400 border rounded-md shadow-sm appearance-none focus:outline-none focus:ring-orange-500 focus:border-orange-500 ${
-                      formErrors.password ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      {showPassword ? (
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      ) : (
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                        />
-                      )}
-                    </svg>
-                  </button>
-                  {formErrors.password && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {formErrors.password}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end">
-                <Link
-                  to="/admin/forgot-password"
-                  className="text-sm font-medium text-purple-600 hover:text-purple-500">
-                  Forgot Password ??
-                </Link>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 border border-transparent rounded-md shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Signing in...
-                  </div>
-                ) : (
-                  'Login as Admin'
-                )}
-              </button>
-
-              <div className="flex items-center justify-between text-sm text-gray-600 mt-8">
-                <span>Not an admin?</span>
-                <Link
-                  to="/login"
-                  className="font-medium text-orange-600 hover:text-orange-500">
-                  User Login
-                </Link>
-              </div>
-            </form>
           </div>
+        </div>
+
+        {/* Demo Credentials */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Admin Credentials:</h3>
+          <div className="text-xs text-blue-700 space-y-1">
+            <p><strong>Email:</strong> admin@dmt.gov.lk</p>
+            <p><strong>Password:</strong> admin123</p>
+          </div>
+        </div>
+
+        {/* Admin Login Form */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
+            {/* Email Field */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Official Email Address
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Shield className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  {...register('email', {
+                    required: 'Official email is required',
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: 'Invalid email address'
+                    }
+                  })}
+                  type="email"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                  placeholder="Enter your official email"
+                />
+              </div>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  {...register('password', {
+                    required: 'Password is required',
+                    minLength: {
+                      value: 6,
+                      message: 'Password must be at least 6 characters'
+                    }
+                  })}
+                  type={showPassword ? 'text' : 'password'}
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Remember Session */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-session"
+                name="remember-session"
+                type="checkbox"
+                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+              />
+              <label htmlFor="remember-session" className="ml-2 block text-sm text-gray-700">
+                Remember this session
+              </label>
+            </div>
+            <Link
+              to="/admin/forgot-password"
+              className="text-sm text-red-600 hover:text-red-500"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          >
+            {isLoading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Authenticating...
+              </div>
+            ) : (
+              <div className="flex items-center">
+                <LogIn className="h-4 w-4 mr-2" />
+                Admin Sign In
+              </div>
+            )}
+          </button>
+
+          {/* Links */}
+          <div className="text-center space-y-2">
+            <p className="text-xs text-gray-500">
+              Regular user?{' '}
+              <Link
+                to="/login"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                Citizen Login
+              </Link>
+            </p>
+            <p className="text-xs text-gray-500">
+              Need help? Contact IT Support: +94 11 269 4000
+            </p>
+          </div>
+        </form>
+
+        {/* Footer */}
+        <div className="text-center">
+          <p className="text-xs text-gray-400">
+            © 2025 Department of Motor Traffic, Sri Lanka
+          </p>
         </div>
       </div>
     </div>

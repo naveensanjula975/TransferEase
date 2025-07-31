@@ -1,361 +1,405 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Logo from "../../assets/logo-1 2.png";
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  Plus,
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  ArrowUpDown,
+  Calendar,
+  Car,
+  User,
+  CreditCard
+} from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const TransfersPage = () => {
-  // Sample transfer data
-  const transfers = [
+  const { user } = useAuth();
+  const [transfers, setTransfers] = useState([]);
+  const [filteredTransfers, setFilteredTransfers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortField, setSortField] = useState('submittedDate');
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Mock transfer data
+  const mockTransfers = [
     {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "To Verify",
-      fee: "Rs 800",
+      id: 'TRA-2025-001',
+      vehicleRegNo: 'ABC-1234',
+      vehicleMake: 'Toyota',
+      vehicleModel: 'Aqua',
+      currentOwner: 'Kasun Perera',
+      newOwner: 'Nimal Silva',
+      newOwnerNIC: '952341234V',
+      status: 'under_review',
+      submittedDate: '2025-01-15',
+      lastUpdated: '2025-01-16',
+      transferType: 'sale',
+      transferFee: 8500,
+      estimatedCompletion: '2025-01-25',
+      progress: 60,
+      documents: ['registration_cert', 'nic_copy', 'insurance'],
+      paymentStatus: 'completed'
     },
     {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "To Verify",
-      fee: "Rs 800",
+      id: 'TRA-2025-002',
+      vehicleRegNo: 'XYZ-5678',
+      vehicleMake: 'Honda',
+      vehicleModel: 'Vezel',
+      currentOwner: 'Kasun Perera',
+      newOwner: 'Saman Fernando',
+      newOwnerNIC: '881234567V',
+      status: 'payment_pending',
+      submittedDate: '2025-01-10',
+      lastUpdated: '2025-01-12',
+      transferType: 'gift',
+      transferFee: 8500,
+      estimatedCompletion: '2025-01-22',
+      progress: 40,
+      documents: ['registration_cert', 'nic_copy'],
+      paymentStatus: 'pending'
     },
     {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
+      id: 'TRA-2025-003',
+      vehicleRegNo: 'DEF-9012',
+      vehicleMake: 'Nissan',
+      vehicleModel: 'March',
+      currentOwner: 'Kasun Perera',
+      newOwner: 'Ruwan Jayasinghe',
+      newOwnerNIC: '923456789V',
+      status: 'completed',
+      submittedDate: '2025-01-05',
+      lastUpdated: '2025-01-14',
+      transferType: 'sale',
+      transferFee: 8500,
+      estimatedCompletion: '2025-01-15',
+      progress: 100,
+      documents: ['registration_cert', 'nic_copy', 'insurance', 'inspection'],
+      paymentStatus: 'completed'
     },
     {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
-    {
-      transferId: "00001",
-      vehicleNumber: "CAX-4589",
-      type: "Car",
-      date: "14 Apr 2024",
-      status: "Completed",
-      fee: "Rs 800",
-    },
+      id: 'TRA-2025-004',
+      vehicleRegNo: 'GHI-3456',
+      vehicleMake: 'Suzuki',
+      vehicleModel: 'Alto',
+      currentOwner: 'Kasun Perera',
+      newOwner: 'Mahinda Rajapaksa',
+      newOwnerNIC: '871234567V',
+      status: 'rejected',
+      submittedDate: '2025-01-08',
+      lastUpdated: '2025-01-11',
+      transferType: 'sale',
+      transferFee: 8500,
+      estimatedCompletion: null,
+      progress: 25,
+      documents: ['registration_cert'],
+      paymentStatus: 'not_required',
+      rejectionReason: 'Incomplete documentation - missing insurance certificate'
+    }
   ];
 
-  const getStatusColor = (status) => {
+  const statusOptions = [
+    { value: 'all', label: 'All Status', count: mockTransfers.length },
+    { value: 'under_review', label: 'Under Review', count: 1 },
+    { value: 'payment_pending', label: 'Payment Pending', count: 1 },
+    { value: 'completed', label: 'Completed', count: 1 },
+    { value: 'rejected', label: 'Rejected', count: 1 }
+  ];
+
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => {
+      setTransfers(mockTransfers);
+      setFilteredTransfers(mockTransfers);
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
+  useEffect(() => {
+    let filtered = transfers.filter(transfer => {
+      const matchesSearch = 
+        transfer.vehicleRegNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transfer.newOwner.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transfer.id.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || transfer.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    // Sort filtered results
+    filtered.sort((a, b) => {
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+      
+      if (sortField === 'submittedDate' || sortField === 'lastUpdated') {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+      
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredTransfers(filtered);
+  }, [transfers, searchTerm, statusFilter, sortField, sortDirection]);
+
+  const getStatusIcon = (status) => {
     switch (status) {
-      case "To Verify":
-        return "bg-purple-100 text-purple-600";
-      case "Completed":
-        return "bg-emerald-100 text-emerald-600";
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'under_review':
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case 'payment_pending':
+        return <CreditCard className="h-5 w-5 text-blue-500" />;
+      case 'rejected':
+        return <XCircle className="h-5 w-5 text-red-500" />;
       default:
-        return "bg-gray-100 text-gray-600";
+        return <AlertCircle className="h-5 w-5 text-gray-500" />;
     }
   };
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm">
-        <div className="p-4">
-          <img src={Logo} alt="TransferEase" className="h-8" />
-        </div>
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'under_review':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'payment_pending':
+        return 'bg-blue-100 text-blue-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
-        <nav className="mt-8 px-4">
-          <Link
-            to="/admin/dashboard"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-            Dashboard
-          </Link>
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
 
-          <Link
-            to="/admin/transfers"
-            className="flex items-center px-4 py-3 text-blue-600 bg-blue-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              />
-            </svg>
-            Transfers
-          </Link>
-
-          <Link
-            to="/admin/vehicles"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            Vehicles
-          </Link>
-
-          <Link
-            to="/admin/owners"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-            Owners
-          </Link>
-
-          <Link
-            to="/admin/statistics"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-            Statistics
-          </Link>
-
-          <Link
-            to="/admin/notifications"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            Notifications
-          </Link>
-
-          <Link
-            to="/admin/add-admin"
-            className="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg mt-2">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-              />
-            </svg>
-            Add Admin
-          </Link>
-        </nav>
-
-        <div className="mt-auto px-4 py-6">
-          <button
-            onClick={() => navigate("/admin")}
-            className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg w-full">
-            <svg
-              className="w-5 h-5 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            Logout
-          </button>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your transfers...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Main Content */}
-      <div className="flex-1 p-8">
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
-            />
-            <svg
-              className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Vehicle Transfers</h1>
+              <p className="mt-2 text-gray-600">
+                Manage and track your vehicle ownership transfer applications
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0">
+              <Link
+                to="/transfer"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                New Transfer
+              </Link>
+            </div>
           </div>
+        </div>
 
-          <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {statusOptions.slice(1).map((status) => (
+            <div key={status.value} className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center">
+                <div className="p-2 rounded-lg bg-gray-100">
+                  {getStatusIcon(status.value)}
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">{status.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{status.count}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters and Search */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by vehicle number, transfer ID, or new owner..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-              </svg>
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </button>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label} ({option.count})
+                  </option>
+                ))}
+              </select>
+              <button className="flex items-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                <Filter className="h-5 w-5 mr-2" />
+                More Filters
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Transfers Table */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">Transfers</h2>
-          </div>
-
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-sm text-gray-500 border-b">
-                  <th className="px-6 py-4">Transfer ID</th>
-                  <th className="px-6 py-4">Vehicle Number</th>
-                  <th className="px-6 py-4">TYPE</th>
-                  <th className="px-6 py-4">DATE</th>
-                  <th className="px-6 py-4">STATUS</th>
-                  <th className="px-6 py-4">Transfer Fee</th>
-                  <th className="px-6 py-4"></th>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th 
+                    onClick={() => handleSort('id')}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  >
+                    <div className="flex items-center">
+                      Transfer ID
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Vehicle
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    New Owner
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th 
+                    onClick={() => handleSort('submittedDate')}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  >
+                    <div className="flex items-center">
+                      Submitted
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Progress
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {transfers.map((transfer, index) => (
-                  <tr key={index} className="border-b last:border-b-0">
-                    <td className="px-6 py-4">{transfer.transferId}</td>
-                    <td className="px-6 py-4">{transfer.vehicleNumber}</td>
-                    <td className="px-6 py-4">{transfer.type}</td>
-                    <td className="px-6 py-4">{transfer.date}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                          transfer.status
-                        )}`}>
-                        {transfer.status}
-                      </span>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredTransfers.map((transfer) => (
+                  <tr key={transfer.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{transfer.id}</div>
+                      <div className="text-sm text-gray-500">
+                        {transfer.transferType.charAt(0).toUpperCase() + transfer.transferType.slice(1)}
+                      </div>
                     </td>
-                    <td className="px-6 py-4">{transfer.fee}</td>
-                    <td className="px-6 py-4">
-                      <button className="px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600">
-                        More Details
-                      </button>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <Car className="h-8 w-8 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {transfer.vehicleRegNo}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {transfer.vehicleMake} {transfer.vehicleModel}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <User className="h-8 w-8 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {transfer.newOwner}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {transfer.newOwnerNIC}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {getStatusIcon(transfer.status)}
+                        <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(transfer.status)}`}>
+                          {transfer.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </div>
+                      {transfer.status === 'rejected' && (
+                        <div className="text-xs text-red-600 mt-1">
+                          {transfer.rejectionReason}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {new Date(transfer.submittedDate).toLocaleDateString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Updated: {new Date(transfer.lastUpdated).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${
+                            transfer.status === 'completed' ? 'bg-green-500' :
+                            transfer.status === 'rejected' ? 'bg-red-500' : 'bg-blue-500'
+                          }`}
+                          style={{ width: `${transfer.progress}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {transfer.progress}% Complete
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button className="text-blue-600 hover:text-blue-900">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button className="text-gray-600 hover:text-gray-900">
+                          <Download className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -363,41 +407,30 @@ const TransfersPage = () => {
             </table>
           </div>
 
-          {/* Pagination */}
-          <div className="px-6 py-4 flex items-center justify-between border-t">
-            <p className="text-sm text-gray-500">Showing 1-09 of 78</p>
-            <div className="flex items-center space-x-2">
-              <button className="p-2 rounded-lg hover:bg-gray-100">
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button className="p-2 rounded-lg hover:bg-gray-100">
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+          {filteredTransfers.length === 0 && (
+            <div className="text-center py-12">
+              <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No transfers found</h3>
+              <p className="text-gray-600 mb-4">
+                {searchTerm || statusFilter !== 'all' 
+                  ? 'Try adjusting your search or filter criteria.'
+                  : 'You haven\'t initiated any vehicle transfers yet.'
+                }
+              </p>
+              {!searchTerm && statusFilter === 'all' && (
+                <Link
+                  to="/transfer"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Start Your First Transfer
+                </Link>
+              )}
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Pagination would go here if needed */}
       </div>
     </div>
   );

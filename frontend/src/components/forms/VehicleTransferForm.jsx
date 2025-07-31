@@ -1,863 +1,819 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Navbar from "../shared/Navbar";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Car,
+  User,
+  FileText,
+  Upload,
+  CreditCard,
+  CheckCircle,
+  AlertTriangle,
+  ArrowRight,
+  ArrowLeft,
+  Save,
+  X,
+  Plus,
+  Eye,
+  Download,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  Search
+} from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import VehicleLookup from './VehicleLookup';
+import DocumentUploader from './DocumentUploader';
+import PaymentProcessor from './PaymentProcessor';
+import TransferConfirmation from './TransferConfirmation';
 
 const VehicleTransferForm = () => {
+  const { user } = useAuth();
+  const { showNotification } = useNotification();
+  const navigate = useNavigate();
+  
   const [currentStep, setCurrentStep] = useState(1);
-  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [useVehicleLookup, setUseVehicleLookup] = useState(true);
+  const [paymentResult, setPaymentResult] = useState(null);
+  const [isApplicationComplete, setIsApplicationComplete] = useState(false);
+  
   const [formData, setFormData] = useState({
-    // Contact Details
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    // Vehicle Details
-    registrationNumber: "",
-    make: "",
-    model: "",
-    year: "",
-    chassisNumber: "",
-    engineNumber: "",
-    color: "",
+    // Vehicle Information
+    vehicleRegNo: '',
+    vehicleMake: '',
+    vehicleModel: '',
+    vehicleYear: '',
+    chassisNo: '',
+    engineNo: '',
+    vehicleColor: '',
+    
+    // Current Owner Information (pre-filled from user data)
+    currentOwnerName: user?.name || '',
+    currentOwnerNIC: user?.nic || '',
+    currentOwnerEmail: user?.email || '',
+    currentOwnerPhone: user?.phone || '',
+    currentOwnerAddress: user?.address || '',
+    
+    // New Owner Information
+    newOwnerName: '',
+    newOwnerNIC: '',
+    newOwnerEmail: '',
+    newOwnerPhone: '',
+    newOwnerAddress: '',
+    newOwnerDistrict: '',
+    newOwnerProvince: '',
+    
+    // Transfer Details
+    transferType: 'sale', // sale, gift, inheritance
+    transferReason: '',
+    salePrice: '',
+    agreementDate: '',
+    
     // Documents
-    registrationDocument: null,
-    insuranceDocument: null,
-    idDocument: null,
+    documents: {
+      vehicleRegistration: null,
+      currentOwnerNIC: null,
+      newOwnerNIC: null,
+      saleAgreement: null,
+      insurance: null,
+      taxClearance: null,
+      inspection: null
+    },
+    
     // Payment
-    paymentMethod: "card",
-    cardNumber: "",
-    cardExpiry: "",
-    cardCvc: "",
-    amount: 2500,
+    paymentMethod: 'card',
+    acceptTerms: false,
+    agreeToProcess: false
   });
 
-  const validateStep = (step) => {
-    const newErrors = {};
+  const steps = [
+    { id: 1, name: 'Vehicle Lookup', icon: Search },
+    { id: 2, name: 'Vehicle Details', icon: Car },
+    { id: 3, name: 'Owner Information', icon: User },
+    { id: 4, name: 'Transfer Details', icon: FileText },
+    { id: 5, name: 'Documents', icon: Upload },
+    { id: 6, name: 'Payment', icon: CreditCard }
+  ];
 
+  const requiredDocuments = [
+    { key: 'vehicleRegistration', label: 'Vehicle Registration Certificate', required: true },
+    { key: 'currentOwnerNIC', label: 'Current Owner NIC Copy', required: true },
+    { key: 'newOwnerNIC', label: 'New Owner NIC Copy', required: true },
+    { key: 'saleAgreement', label: 'Sale Agreement', required: formData.transferType === 'sale' },
+    { key: 'insurance', label: 'Valid Insurance Certificate', required: true },
+    { key: 'taxClearance', label: 'Tax Clearance Certificate', required: false },
+    { key: 'inspection', label: 'Vehicle Inspection Report', required: false }
+  ];
+
+  const districts = [
+    'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya',
+    'Galle', 'Matara', 'Hambantota', 'Jaffna', 'Kilinochchi', 'Mannar',
+    'Vavuniya', 'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee',
+    'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 'Badulla',
+    'Moneragala', 'Ratnapura', 'Kegalle'
+  ];
+
+  const provinces = [
+    'Western', 'Central', 'Southern', 'Northern', 'Eastern',
+    'North Western', 'North Central', 'Uva', 'Sabaragamuwa'
+  ];
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleVehicleSelect = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    if (vehicle) {
+      setFormData(prev => ({
+        ...prev,
+        vehicleRegNo: vehicle.regNo,
+        vehicleMake: vehicle.make,
+        vehicleModel: vehicle.model,
+        vehicleYear: vehicle.year,
+        chassisNo: vehicle.chassisNo,
+        engineNo: vehicle.engineNo,
+        vehicleColor: vehicle.color,
+        currentOwnerName: vehicle.owner.name,
+        currentOwnerNIC: vehicle.owner.nic,
+        currentOwnerAddress: vehicle.owner.address
+      }));
+      setUseVehicleLookup(false);
+    } else {
+      // Manual entry mode
+      setUseVehicleLookup(false);
+    }
+  };
+
+  const handleDocumentUpload = (documentKey, file) => {
+    setFormData(prev => ({
+      ...prev,
+      documents: {
+        ...prev.documents,
+        [documentKey]: file
+      }
+    }));
+    showNotification(`${requiredDocuments.find(d => d.key === documentKey)?.label} uploaded successfully`, 'success');
+  };
+
+  const handleDocumentRemove = (documentKey) => {
+    setFormData(prev => ({
+      ...prev,
+      documents: {
+        ...prev.documents,
+        [documentKey]: null
+      }
+    }));
+    showNotification('Document removed', 'info');
+  };
+
+  const handlePaymentComplete = (result) => {
+    setPaymentResult(result);
+    if (result.success) {
+      setIsApplicationComplete(true);
+      showNotification('Payment successful! Application completed.', 'success');
+    }
+  };
+
+  const handleDownloadReceipt = () => {
+    // Generate and download receipt
+    showNotification('Receipt downloaded successfully', 'success');
+  };
+
+  const handleStartNewTransfer = () => {
+    // Reset form for new transfer
+    setCurrentStep(1);
+    setSelectedVehicle(null);
+    setUseVehicleLookup(true);
+    setPaymentResult(null);
+    setIsApplicationComplete(false);
+    setFormData({
+      vehicleRegNo: '',
+      vehicleMake: '',
+      vehicleModel: '',
+      vehicleYear: '',
+      chassisNo: '',
+      engineNo: '',
+      vehicleColor: '',
+      currentOwnerName: user?.name || '',
+      currentOwnerNIC: user?.nic || '',
+      currentOwnerEmail: user?.email || '',
+      currentOwnerPhone: user?.phone || '',
+      currentOwnerAddress: user?.address || '',
+      newOwnerName: '',
+      newOwnerNIC: '',
+      newOwnerEmail: '',
+      newOwnerPhone: '',
+      newOwnerAddress: '',
+      newOwnerDistrict: '',
+      newOwnerProvince: '',
+      transferType: 'sale',
+      transferReason: '',
+      salePrice: '',
+      agreementDate: '',
+      documents: {
+        vehicleRegistration: null,
+        currentOwnerNIC: null,
+        newOwnerNIC: null,
+        saleAgreement: null,
+        insurance: null,
+        taxClearance: null,
+        inspection: null
+      },
+      paymentMethod: 'card',
+      acceptTerms: false,
+      agreeToProcess: false
+    });
+  };
+
+  const validateStep = (step) => {
     switch (step) {
       case 1:
-        if (!formData.name) newErrors.name = "Name is required";
-        if (!formData.email) newErrors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(formData.email))
-          newErrors.email = "Email is invalid";
-        if (!formData.phone) newErrors.phone = "Phone number is required";
-        else if (!/^0[0-9]{9}$/.test(formData.phone))
-          newErrors.phone = "Phone number should be 10 digits starting with 0";
-        if (!formData.address) newErrors.address = "Address is required";
-        break;
-
+        // Vehicle lookup step - always allow proceed
+        return true;
       case 2:
-        if (!formData.registrationNumber)
-          newErrors.registrationNumber = "Registration number is required";
-        else if (!/^[A-Z]{2,3}-\d{4}$/.test(formData.registrationNumber))
-          newErrors.registrationNumber = "Invalid format (e.g., CAX-5678)";
-        if (!formData.make) newErrors.make = "Make is required";
-        if (!formData.model) newErrors.model = "Model is required";
-        if (!formData.year) newErrors.year = "Year is required";
-        else if (
-          formData.year < 1900 ||
-          formData.year > new Date().getFullYear()
-        )
-          newErrors.year = "Invalid year";
-        if (!formData.chassisNumber)
-          newErrors.chassisNumber = "Chassis number is required";
-        if (!formData.engineNumber)
-          newErrors.engineNumber = "Engine number is required";
-        if (!formData.color) newErrors.color = "Color is required";
-        break;
-
+        return formData.vehicleRegNo && formData.vehicleMake && formData.vehicleModel && 
+               formData.vehicleYear && formData.chassisNo && formData.engineNo;
       case 3:
-        if (!formData.registrationDocument)
-          newErrors.registrationDocument = "Registration document is required";
-        if (!formData.insuranceDocument)
-          newErrors.insuranceDocument = "Insurance document is required";
-        if (!formData.idDocument)
-          newErrors.idDocument = "ID document is required";
-        break;
-
+        return formData.newOwnerName && formData.newOwnerNIC && formData.newOwnerEmail && 
+               formData.newOwnerPhone && formData.newOwnerAddress;
       case 4:
-        if (formData.paymentMethod === "card") {
-          if (!formData.cardNumber)
-            newErrors.cardNumber = "Card number is required";
-          else if (!/^\d{16}$/.test(formData.cardNumber))
-            newErrors.cardNumber = "Invalid card number";
-          if (!formData.cardExpiry)
-            newErrors.cardExpiry = "Expiry date is required";
-          else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.cardExpiry))
-            newErrors.cardExpiry = "Invalid expiry date (MM/YY)";
-          if (!formData.cardCvc) newErrors.cardCvc = "CVC is required";
-          else if (!/^\d{3,4}$/.test(formData.cardCvc))
-            newErrors.cardCvc = "Invalid CVC";
-        }
-        break;
-
+        return formData.transferType && formData.transferReason && 
+               (formData.transferType !== 'sale' || formData.salePrice);
+      case 5:
+        const requiredDocs = requiredDocuments.filter(doc => doc.required);
+        return requiredDocs.every(doc => formData.documents[doc.key]);
+      case 6:
+        return formData.acceptTerms && formData.agreeToProcess;
       default:
-        break;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value, type, files } = e.target;
-
-    if (type === "file") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
+        return true;
     }
   };
 
-  const handleNextStep = (e) => {
-    e.preventDefault();
+  const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 4));
+      setCurrentStep(prev => Math.min(prev + 1, 6));
+    } else {
+      showNotification('Please fill in all required fields', 'error');
     }
   };
 
-  const handlePrevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const steps = [
-    { number: 1, title: "Contact details" },
-    { number: 2, title: "Vehicle details" },
-    { number: 3, title: "Documents" },
-    { number: 4, title: "Payment" },
-  ];
+  const handleSubmit = async () => {
+    if (!validateStep(5)) {
+      showNotification('Please accept terms and conditions', 'error');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      showNotification('Transfer application submitted successfully!', 'success');
+      navigate('/transfers');
+    } catch (error) {
+      showNotification('Failed to submit transfer application', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateFees = () => {
+    const baseFee = 8500;
+    const expeditedFee = formData.expedited ? 2500 : 0;
+    return baseFee + expeditedFee;
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Name Field */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Name
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Nimal Kamal"
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Email address"
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                )}
-              </div>
-
-              {/* Phone Number Field */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="071 456 7890"
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* Address Field */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Address
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Your Address"
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                {errors.address && (
-                  <p className="mt-1 text-sm text-red-600">{errors.address}</p>
-                )}
-              </div>
-            </div>
-          </div>
+          <VehicleLookup
+            onVehicleSelect={handleVehicleSelect}
+            selectedVehicle={selectedVehicle}
+          />
         );
+
       case 2:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Registration Number */}
+            <h3 className="text-lg font-medium text-gray-900">Vehicle Information</h3>
+            
+            {selectedVehicle && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-blue-500 mr-2" />
+                  <span className="text-blue-800 font-medium">
+                    Vehicle details populated from lookup: {selectedVehicle.regNo}
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Registration Number
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vehicle Registration Number *
                 </label>
                 <input
                   type="text"
-                  name="registrationNumber"
-                  value={formData.registrationNumber}
-                  onChange={handleInputChange}
-                  placeholder="CAX-5678"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
+                  value={formData.vehicleRegNo}
+                  onChange={(e) => handleInputChange('vehicleRegNo', e.target.value.toUpperCase())}
+                  placeholder="e.g., ABC-1234"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={!!selectedVehicle}
                 />
-                {errors.registrationNumber && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.registrationNumber}
-                  </p>
-                )}
               </div>
-
-              {/* Make */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Make
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vehicle Make *
+                </label>
+                <select
+                  value={formData.vehicleMake}
+                  onChange={(e) => handleInputChange('vehicleMake', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!!selectedVehicle}
+                >
+                  <option value="">Select Make</option>
+                  <option value="Toyota">Toyota</option>
+                  <option value="Honda">Honda</option>
+                  <option value="Nissan">Nissan</option>
+                  <option value="Suzuki">Suzuki</option>
+                  <option value="Mitsubishi">Mitsubishi</option>
+                  <option value="Mazda">Mazda</option>
+                  <option value="BMW">BMW</option>
+                  <option value="Mercedes-Benz">Mercedes-Benz</option>
+                  <option value="Audi">Audi</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vehicle Model *
                 </label>
                 <input
                   type="text"
-                  name="make"
-                  value={formData.make}
-                  onChange={handleInputChange}
-                  placeholder="Toyota"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
+                  value={formData.vehicleModel}
+                  onChange={(e) => handleInputChange('vehicleModel', e.target.value)}
+                  placeholder="e.g., Aqua, Civic, March"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={!!selectedVehicle}
                 />
-                {errors.make && (
-                  <p className="mt-1 text-sm text-red-600">{errors.make}</p>
-                )}
               </div>
-
-              {/* Model */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Model
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Year of Manufacture *
+                </label>
+                <select
+                  value={formData.vehicleYear}
+                  onChange={(e) => handleInputChange('vehicleYear', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!!selectedVehicle}
+                >
+                  <option value="">Select Year</option>
+                  {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chassis Number *
                 </label>
                 <input
                   type="text"
-                  name="model"
-                  value={formData.model}
-                  onChange={handleInputChange}
-                  placeholder="Corolla"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
+                  value={formData.chassisNo}
+                  onChange={(e) => handleInputChange('chassisNo', e.target.value.toUpperCase())}
+                  placeholder="17-character chassis number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={!!selectedVehicle}
                 />
-                {errors.model && (
-                  <p className="mt-1 text-sm text-red-600">{errors.model}</p>
-                )}
               </div>
-
-              {/* Year */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Year
-                </label>
-                <input
-                  type="number"
-                  name="year"
-                  value={formData.year}
-                  onChange={handleInputChange}
-                  placeholder="2020"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
-                />
-                {errors.year && (
-                  <p className="mt-1 text-sm text-red-600">{errors.year}</p>
-                )}
-              </div>
-
-              {/* Chassis Number */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Chassis Number
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Engine Number *
                 </label>
                 <input
                   type="text"
-                  name="chassisNumber"
-                  value={formData.chassisNumber}
-                  onChange={handleInputChange}
-                  placeholder="JHMCM56557C404453"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
+                  value={formData.engineNo}
+                  onChange={(e) => handleInputChange('engineNo', e.target.value.toUpperCase())}
+                  placeholder="Engine number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={!!selectedVehicle}
                 />
-                {errors.chassisNumber && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.chassisNumber}
-                  </p>
-                )}
               </div>
-
-              {/* Engine Number */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Engine Number
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vehicle Color
                 </label>
                 <input
                   type="text"
-                  name="engineNumber"
-                  value={formData.engineNumber}
-                  onChange={handleInputChange}
-                  placeholder="K20A4-1234567"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
+                  value={formData.vehicleColor}
+                  onChange={(e) => handleInputChange('vehicleColor', e.target.value)}
+                  placeholder="e.g., White, Black, Silver"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={!!selectedVehicle}
                 />
-                {errors.engineNumber && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.engineNumber}
-                  </p>
-                )}
-              </div>
-
-              {/* Color */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Color
-                </label>
-                <input
-                  type="text"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleInputChange}
-                  placeholder="Silver"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
-                />
-                {errors.color && (
-                  <p className="mt-1 text-sm text-red-600">{errors.color}</p>
-                )}
               </div>
             </div>
+            
+            {selectedVehicle && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => {
+                    setSelectedVehicle(null);
+                    setCurrentStep(1);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  Search for a different vehicle
+                </button>
+              </div>
+            )}
           </div>
         );
+
       case 3:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-6">
-              {/* Registration Document Upload */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Vehicle Registration Document
-                </label>
-                <div className="flex justify-center px-6 pt-5 pb-6 mt-1 transition-colors border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500">
-                  <div className="space-y-1 text-center">
-                    <svg
-                      className="w-12 h-12 mx-auto text-gray-400"
-                      stroke="currentColor"
-                      fill="none"
-                      viewBox="0 0 48 48"
-                      aria-hidden="true">
-                      <path
-                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="registrationDocument"
-                        className="relative font-medium text-orange-500 bg-white rounded-md cursor-pointer hover:text-orange-600">
-                        <span>Upload a file</span>
-                        <input
-                          id="registrationDocument"
-                          name="registrationDocument"
-                          type="file"
-                          className="sr-only"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PDF, PNG, JPG up to 10MB
-                    </p>
-                    {formData.registrationDocument && (
-                      <p className="text-sm text-green-600">
-                        Selected: {formData.registrationDocument.name}
-                      </p>
-                    )}
-                    {errors.registrationDocument && (
-                      <p className="text-sm text-red-600">
-                        {errors.registrationDocument}
-                      </p>
-                    )}
-                  </div>
+            <h3 className="text-lg font-medium text-gray-900">Owner Information</h3>
+            
+            {/* Current Owner (Read-only) */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="text-md font-medium text-gray-900 mb-3">Current Owner Details</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={formData.currentOwnerName}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">NIC Number</label>
+                  <input
+                    type="text"
+                    value={formData.currentOwnerNIC}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Insurance Document Upload */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Insurance Document
-                </label>
-                <div className="flex justify-center px-6 pt-5 pb-6 mt-1 transition-colors border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500">
-                  <div className="space-y-1 text-center">
-                    <svg
-                      className="w-12 h-12 mx-auto text-gray-400"
-                      stroke="currentColor"
-                      fill="none"
-                      viewBox="0 0 48 48"
-                      aria-hidden="true">
-                      <path
-                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="insuranceDocument"
-                        className="relative font-medium text-orange-500 bg-white rounded-md cursor-pointer hover:text-orange-600">
-                        <span>Upload a file</span>
-                        <input
-                          id="insuranceDocument"
-                          name="insuranceDocument"
-                          type="file"
-                          className="sr-only"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PDF, PNG, JPG up to 10MB
-                    </p>
-                    {formData.insuranceDocument && (
-                      <p className="text-sm text-green-600">
-                        Selected: {formData.insuranceDocument.name}
-                      </p>
-                    )}
-                    {errors.insuranceDocument && (
-                      <p className="text-sm text-red-600">
-                        {errors.insuranceDocument}
-                      </p>
-                    )}
-                  </div>
+            {/* New Owner */}
+            <div>
+              <h4 className="text-md font-medium text-gray-900 mb-3">New Owner Details</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.newOwnerName}
+                    onChange={(e) => handleInputChange('newOwnerName', e.target.value)}
+                    placeholder="Enter full name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
-              </div>
-
-              {/* ID Document Upload */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  ID Document (NIC/Passport)
-                </label>
-                <div className="flex justify-center px-6 pt-5 pb-6 mt-1 transition-colors border-2 border-gray-300 border-dashed rounded-md hover:border-orange-500">
-                  <div className="space-y-1 text-center">
-                    <svg
-                      className="w-12 h-12 mx-auto text-gray-400"
-                      stroke="currentColor"
-                      fill="none"
-                      viewBox="0 0 48 48"
-                      aria-hidden="true">
-                      <path
-                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="idDocument"
-                        className="relative font-medium text-orange-500 bg-white rounded-md cursor-pointer hover:text-orange-600">
-                        <span>Upload a file</span>
-                        <input
-                          id="idDocument"
-                          name="idDocument"
-                          type="file"
-                          className="sr-only"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PDF, PNG, JPG up to 10MB
-                    </p>
-                    {formData.idDocument && (
-                      <p className="text-sm text-green-600">
-                        Selected: {formData.idDocument.name}
-                      </p>
-                    )}
-                    {errors.idDocument && (
-                      <p className="text-sm text-red-600">
-                        {errors.idDocument}
-                      </p>
-                    )}
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    NIC Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.newOwnerNIC}
+                    onChange={(e) => handleInputChange('newOwnerNIC', e.target.value)}
+                    placeholder="e.g., 952341234V or 199523412345"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.newOwnerEmail}
+                    onChange={(e) => handleInputChange('newOwnerEmail', e.target.value)}
+                    placeholder="email@example.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.newOwnerPhone}
+                    onChange={(e) => handleInputChange('newOwnerPhone', e.target.value)}
+                    placeholder="+94 77 123 4567"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address *
+                  </label>
+                  <textarea
+                    value={formData.newOwnerAddress}
+                    onChange={(e) => handleInputChange('newOwnerAddress', e.target.value)}
+                    placeholder="Enter full address"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    District
+                  </label>
+                  <select
+                    value={formData.newOwnerDistrict}
+                    onChange={(e) => handleInputChange('newOwnerDistrict', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select District</option>
+                    {districts.map(district => (
+                      <option key={district} value={district}>{district}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Province
+                  </label>
+                  <select
+                    value={formData.newOwnerProvince}
+                    onChange={(e) => handleInputChange('newOwnerProvince', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Province</option>
+                    {provinces.map(province => (
+                      <option key={province} value={province}>{province}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
           </div>
         );
+
       case 4:
         return (
           <div className="space-y-6">
-            <div className="p-4 mb-6 rounded-lg bg-gray-50">
-              <h3 className="mb-2 text-lg font-medium text-gray-900">
-                Payment Summary
-              </h3>
-              <div className="flex justify-between mb-1 text-sm text-gray-600">
-                <span>Transfer Fee</span>
-                <span>Rs. 2,000.00</span>
-              </div>
-              <div className="flex justify-between mb-1 text-sm text-gray-600">
-                <span>Service Charge</span>
-                <span>Rs. 500.00</span>
-              </div>
-              <div className="flex justify-between pt-2 text-base font-medium text-gray-900 border-t">
-                <span>Total Amount</span>
-                <span>Rs. 2,500.00</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <input
-                  type="radio"
-                  id="card"
-                  name="paymentMethod"
-                  value="card"
-                  checked={formData.paymentMethod === "card"}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-orange-500 focus:ring-orange-500"
-                />
-                <label
-                  htmlFor="card"
-                  className="text-sm font-medium text-gray-700">
-                  Credit/Debit Card
+            <h3 className="text-lg font-medium text-gray-900">Transfer Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Transfer Type *
                 </label>
+                <select
+                  value={formData.transferType}
+                  onChange={(e) => handleInputChange('transferType', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="sale">Sale</option>
+                  <option value="gift">Gift</option>
+                  <option value="inheritance">Inheritance</option>
+                </select>
               </div>
-
-              {formData.paymentMethod === "card" && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleInputChange}
-                      placeholder="1234 5678 9012 3456"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      required
-                    />
-                    {errors.cardNumber && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.cardNumber}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="text"
-                      name="cardExpiry"
-                      value={formData.cardExpiry}
-                      onChange={handleInputChange}
-                      placeholder="MM/YY"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      required
-                    />
-                    {errors.cardExpiry && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.cardExpiry}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      CVC
-                    </label>
-                    <input
-                      type="text"
-                      name="cardCvc"
-                      value={formData.cardCvc}
-                      onChange={handleInputChange}
-                      placeholder="123"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      required
-                    />
-                    {errors.cardCvc && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.cardCvc}
-                      </p>
-                    )}
-                  </div>
+              {formData.transferType === 'sale' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sale Price (LKR) *
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.salePrice}
+                    onChange={(e) => handleInputChange('salePrice', e.target.value)}
+                    placeholder="Enter sale price"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
               )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Agreement Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.agreementDate}
+                  onChange={(e) => handleInputChange('agreementDate', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Transfer Reason *
+                </label>
+                <textarea
+                  value={formData.transferReason}
+                  onChange={(e) => handleInputChange('transferReason', e.target.value)}
+                  placeholder="Briefly explain the reason for transfer"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           </div>
         );
+
+      case 5:
+        return (
+          <DocumentUploader
+            documents={formData.documents}
+            onDocumentUpload={handleDocumentUpload}
+            onDocumentRemove={handleDocumentRemove}
+            requiredDocuments={requiredDocuments}
+          />
+        );
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-6">Review & Payment</h3>
+            
+            {/* Application Summary */}
+            <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Application Summary</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Vehicle:</span>
+                  <span className="ml-2 font-medium">{formData.vehicleRegNo} - {formData.vehicleMake} {formData.vehicleModel}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Transfer Type:</span>
+                  <span className="ml-2 font-medium capitalize">{formData.transferType}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">From:</span>
+                  <span className="ml-2 font-medium">{formData.currentOwnerName}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">To:</span>
+                  <span className="ml-2 font-medium">{formData.newOwnerName}</span>
+                </div>
+                {formData.transferType === 'sale' && (
+                  <div>
+                    <span className="text-gray-600">Sale Price:</span>
+                    <span className="ml-2 font-medium">LKR {Number(formData.salePrice).toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="acceptTerms"
+                  checked={formData.acceptTerms}
+                  onChange={(e) => handleInputChange('acceptTerms', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
+                />
+                <label htmlFor="acceptTerms" className="text-sm text-gray-700">
+                  I accept the Terms and Conditions and Privacy Policy
+                </label>
+              </div>
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="agreeToProcess"
+                  checked={formData.agreeToProcess}
+                  onChange={(e) => handleInputChange('agreeToProcess', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
+                />
+                <label htmlFor="agreeToProcess" className="text-sm text-gray-700">
+                  I agree to process this application and understand that all information provided is accurate and complete
+                </label>
+              </div>
+            </div>
+
+            {/* Payment Processor */}
+            <PaymentProcessor
+              amount={calculateFees()}
+              paymentMethod={formData.paymentMethod}
+              onPaymentMethodChange={(method) => handleInputChange('paymentMethod', method)}
+              onPaymentComplete={handlePaymentComplete}
+              isProcessing={isLoading}
+            />
+          </div>
+        );
+
       default:
-        return <div>Step {currentStep} content</div>;
+        return null;
     }
   };
 
+  // Show confirmation page if application is complete
+  if (isApplicationComplete && paymentResult) {
+    return (
+      <TransferConfirmation
+        applicationData={formData}
+        paymentResult={paymentResult}
+        onDownloadReceipt={handleDownloadReceipt}
+        onStartNewTransfer={handleStartNewTransfer}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar isLoggedIn={true} />
-
-      <div className="max-w-4xl p-8 pt-24 mx-auto">
-        <h1 className="mb-2 text-3xl font-bold text-center text-gray-900">
-          Vehicle Transfer
-        </h1>
-        <p className="mb-12 text-center text-gray-600">
-          Please fill the form below to receive the confirmation by DMT for your
-          vehicle.
-        </p>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Vehicle Transfer Application</h1>
+          <p className="mt-2 text-gray-600">
+            Complete the form below to transfer vehicle ownership
+          </p>
+        </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="flex items-center w-full max-w-3xl">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
             {steps.map((step, index) => (
-              <React.Fragment key={step.number}>
-                <div className="relative flex items-center">
-                  <div
-                    className={`rounded-full transition duration-500 ease-in-out h-12 w-12 py-3 border-2 
-                    ${
-                      currentStep >= step.number
-                        ? "bg-orange-500 border-orange-500"
-                        : "border-gray-300"
-                    }`}>
-                    <p
-                      className={`font-bold text-md text-center
-                      ${
-                        currentStep >= step.number
-                          ? "text-white"
-                          : "text-gray-500"
-                      }`}>
-                      {step.number}
-                    </p>
-                  </div>
-                  <div
-                    className={`absolute top-0 -ml-10 text-center mt-16 w-32 text-xs font-medium
-                    ${
-                      currentStep >= step.number
-                        ? "text-orange-500"
-                        : "text-gray-500"
-                    }`}>
-                    {step.title}
-                  </div>
+              <div key={step.id} className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  currentStep >= step.id 
+                    ? 'bg-blue-600 border-blue-600 text-white' 
+                    : 'border-gray-300 text-gray-400'
+                }`}>
+                  {currentStep > step.id ? (
+                    <CheckCircle className="w-6 h-6" />
+                  ) : (
+                    <step.icon className="w-5 h-5" />
+                  )}
+                </div>
+                <div className="ml-3 hidden sm:block">
+                  <p className={`text-sm font-medium ${
+                    currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'
+                  }`}>
+                    {step.name}
+                  </p>
                 </div>
                 {index < steps.length - 1 && (
-                  <div
-                    className={`flex-auto border-t-2 transition duration-500 ease-in-out
-                    ${
-                      currentStep > step.number
-                        ? "border-orange-500"
-                        : "border-gray-300"
-                    }`}></div>
+                  <div className={`flex-1 h-1 mx-4 ${
+                    currentStep > step.id ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}></div>
                 )}
-              </React.Fragment>
+              </div>
             ))}
           </div>
         </div>
 
         {/* Form Content */}
-        <div className="p-8 bg-white rounded-lg shadow-sm">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            {steps[currentStep - 1].title}
-          </h2>
-          <p className="mb-8 text-gray-600">
-            {currentStep === 1
-              ? "Statement of changing the owner of the motor vehicle"
-              : currentStep === 2
-              ? "Enter your vehicle details as shown in the registration book"
-              : currentStep === 3
-              ? "Upload your vehicle documents"
-              : "Payment details"}
-          </p>
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          {renderStepContent()}
+        </div>
 
-          <form onSubmit={handleNextStep} className="space-y-6">
-            {renderStepContent()}
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Previous
+          </button>
 
-            <div className="flex justify-between pt-4">
-              {currentStep > 1 ? (
-                <button
-                  type="button"
-                  onClick={handlePrevStep}
-                  className="flex items-center font-medium text-gray-600 hover:text-gray-800">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                  Previous step
-                </button>
-              ) : (
-                <Link
-                  to="/dashboard"
-                  className="flex items-center font-medium text-gray-600 hover:text-gray-800">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                  Back to Dashboard
-                </Link>
-              )}
+          <div className="flex space-x-3">
+            {currentStep < 6 && (
               <button
-                type="submit"
-                className="flex items-center px-6 py-2 text-white transition-colors bg-orange-500 rounded-md hover:bg-orange-600">
-                {currentStep < steps.length ? (
-                  <>
-                    Next step
-                    <svg
-                      className="w-5 h-5 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </>
-                ) : (
-                  "Submit"
-                )}
+                onClick={() => showNotification('Draft saved successfully', 'success')}
+                className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Draft
               </button>
-            </div>
-          </form>
+            )}
+            
+            {currentStep < 6 && !paymentResult ? (
+              <button
+                onClick={nextStep}
+                disabled={!validateStep(currentStep)}
+                className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
