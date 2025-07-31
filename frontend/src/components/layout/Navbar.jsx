@@ -12,7 +12,9 @@ import {
     Info,
     Phone,
     Shield,
-    Bell
+    Bell,
+    FileText,
+    Calendar
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../shared';
@@ -57,13 +59,15 @@ const Navbar = () => {
     const getNavigationItems = () => {
         const commonItems = [
             { path: '/', label: 'Home', icon: Home },
-            { path: '/vehicles', label: 'Vehicles', icon: Car },
             { path: '/about', label: 'About', icon: Info },
             { path: '/contact', label: 'Contact', icon: Phone },
         ];
 
         if (!isAuthenticated) {
-            return commonItems;
+            return [
+                ...commonItems,
+                { path: '/vehicles', label: 'Vehicles', icon: Car },
+            ];
         }
 
         if (user?.role === 'admin') {
@@ -72,6 +76,8 @@ const Navbar = () => {
                 { path: '/admin/dashboard', label: 'Admin Dashboard', icon: Shield },
                 { path: '/admin/users', label: 'User Management', icon: User },
                 { path: '/admin/vehicles', label: 'Vehicle Management', icon: Car },
+                { path: '/admin/documents', label: 'Document Management', icon: FileText },
+                { path: '/admin/bookings', label: 'Booking Management', icon: Calendar },
             ];
         }
 
@@ -79,7 +85,9 @@ const Navbar = () => {
         return [
             ...commonItems,
             { path: '/dashboard', label: 'Dashboard', icon: User },
-            { path: '/bookings', label: 'My Bookings', icon: Car },
+            { path: '/vehicles', label: 'My Vehicles', icon: Car },
+            { path: '/documents', label: 'My Documents', icon: FileText },
+            { path: '/bookings', label: 'My Bookings', icon: Calendar },
             { path: '/notifications', label: 'Notifications', icon: Bell },
         ];
     };

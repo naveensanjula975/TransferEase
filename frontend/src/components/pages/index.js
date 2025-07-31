@@ -8,6 +8,8 @@ export { default as StatisticsPage } from './StatisticsPage';
 export { default as NotificationsPage } from './NotificationsPage';
 export { default as SettingsPage } from './SettingsPage';
 export { default as UserProfile } from './UserProfile';
+export { default as DocumentsPage } from './DocumentsPage';
+export { default as BookingsPage } from './BookingsPage';
 
 // Portal Components
 export { default as VehicleTransferPortal } from './VehicleTransferPortal';

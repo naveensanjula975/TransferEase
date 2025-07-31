@@ -18,12 +18,17 @@ import {
   Clock,
   Fuel,
   Gauge,
-  MapPin
+  MapPin,
+  X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import Navbar from '../layout/Navbar';
+import mockVehicleService from '../../services/MockVehicleService';
 
 const VehiclesPage = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [vehicles, setVehicles] = useState([]);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,155 +38,45 @@ const VehiclesPage = () => {
   const [sortDirection, setSortDirection] = useState('desc');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Mock vehicle data
-  const mockVehicles = [
-    {
-      id: 'VEH-001',
-      registrationNo: 'ABC-1234',
-      make: 'Toyota',
-      model: 'Aqua',
-      year: 2018,
-      category: 'car',
-      fuelType: 'hybrid',
-      engineCapacity: '1500cc',
-      color: 'Silver',
-      chassisNo: 'JN1CV6EK7EM123456',
-      engineNo: 'QG15DE789012',
-      registrationDate: '2018-03-15',
-      expiryDate: '2025-03-15',
-      status: 'active',
-      ownershipStatus: 'owned',
-      currentValue: 3500000,
-      transferHistory: [
-        { date: '2018-03-15', from: 'Dealership', to: 'Kasun Perera', reason: 'Initial Purchase' }
-      ],
-      documents: {
-        registration: { status: 'valid', expiry: '2025-03-15' },
-        insurance: { status: 'valid', expiry: '2025-05-20' },
-        license: { status: 'valid', expiry: '2024-12-31' },
-        inspection: { status: 'valid', expiry: '2024-08-15' }
-      },
-      mileage: 45000,
-      location: 'Colombo',
-      features: ['Air Conditioning', 'Power Steering', 'ABS', 'Airbags']
-    },
-    {
-      id: 'VEH-002',
-      registrationNo: 'XYZ-5678',
-      make: 'Honda',
-      model: 'Vezel',
-      year: 2019,
-      category: 'suv',
-      fuelType: 'petrol',
-      engineCapacity: '1500cc',
-      color: 'White',
-      chassisNo: 'JHMRU6H39FS123456',
-      engineNo: 'L15B789012',
-      registrationDate: '2019-07-22',
-      expiryDate: '2025-07-22',
-      status: 'active',
-      ownershipStatus: 'owned',
-      currentValue: 5200000,
-      transferHistory: [
-        { date: '2019-07-22', from: 'Dealership', to: 'Kasun Perera', reason: 'Initial Purchase' }
-      ],
-      documents: {
-        registration: { status: 'valid', expiry: '2025-07-22' },
-        insurance: { status: 'expiring_soon', expiry: '2024-02-10' },
-        license: { status: 'valid', expiry: '2024-12-31' },
-        inspection: { status: 'expired', expiry: '2024-01-05' }
-      },
-      mileage: 32000,
-      location: 'Kandy',
-      features: ['Cruise Control', 'Reverse Camera', 'Bluetooth', 'Alloy Wheels']
-    },
-    {
-      id: 'VEH-003',
-      registrationNo: 'DEF-9012',
-      make: 'Nissan',
-      model: 'March',
-      year: 2020,
-      category: 'car',
-      fuelType: 'petrol',
-      engineCapacity: '1200cc',
-      color: 'Red',
-      chassisNo: 'JN1BK32D1KU123456',
-      engineNo: 'HR12DE789012',
-      registrationDate: '2020-01-10',
-      expiryDate: '2026-01-10',
-      status: 'transferred',
-      ownershipStatus: 'transferred',
-      currentValue: 2800000,
-      transferHistory: [
-        { date: '2020-01-10', from: 'Dealership', to: 'Kasun Perera', reason: 'Initial Purchase' },
-        { date: '2025-01-14', from: 'Kasun Perera', to: 'Ruwan Jayasinghe', reason: 'Sale' }
-      ],
-      documents: {
-        registration: { status: 'transferred', expiry: '2026-01-10' },
-        insurance: { status: 'transferred', expiry: '2025-06-15' },
-        license: { status: 'transferred', expiry: '2024-12-31' },
-        inspection: { status: 'transferred', expiry: '2024-09-10' }
-      },
-      mileage: 28000,
-      location: 'Galle',
-      features: ['Power Windows', 'Central Locking', 'Radio/CD']
-    },
-    {
-      id: 'VEH-004',
-      registrationNo: 'GHI-3456',
-      make: 'Suzuki',
-      model: 'Alto',
-      year: 2017,
-      category: 'car',
-      fuelType: 'petrol',
-      engineCapacity: '800cc',
-      color: 'Blue',
-      chassisNo: 'MALDF42A6J2123456',
-      engineNo: 'F8B789012',
-      registrationDate: '2017-11-05',
-      expiryDate: '2024-11-05',
-      status: 'expired',
-      ownershipStatus: 'owned',
-      currentValue: 1500000,
-      transferHistory: [
-        { date: '2017-11-05', from: 'Dealership', to: 'Kasun Perera', reason: 'Initial Purchase' }
-      ],
-      documents: {
-        registration: { status: 'expired', expiry: '2024-11-05' },
-        insurance: { status: 'expired', expiry: '2024-01-20' },
-        license: { status: 'valid', expiry: '2024-12-31' },
-        inspection: { status: 'expired', expiry: '2023-11-05' }
-      },
-      mileage: 65000,
-      location: 'Matara',
-      features: ['Air Conditioning', 'Power Steering']
-    }
-  ];
+  // Load vehicles from service
+  useEffect(() => {
+    const loadVehicles = async () => {
+      try {
+        setIsLoading(true);
+        const response = await mockVehicleService.getUserVehicles(user?.id);
+        if (response.success) {
+          setVehicles(response.data);
+          setFilteredVehicles(response.data);
+        } else {
+          showNotification('Failed to load vehicles', 'error');
+        }
+      } catch (error) {
+        showNotification('Error loading vehicles', 'error');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    loadVehicles();
+  }, [user?.id, showNotification]);
+
+  // Dynamic category and status options based on actual data
   const categoryOptions = [
-    { value: 'all', label: 'All Categories', count: mockVehicles.length },
-    { value: 'car', label: 'Cars', count: 3 },
-    { value: 'suv', label: 'SUVs', count: 1 },
-    { value: 'motorcycle', label: 'Motorcycles', count: 0 },
-    { value: 'van', label: 'Vans', count: 0 }
+    { value: 'all', label: 'All Categories', count: vehicles.length },
+    { value: 'car', label: 'Cars', count: vehicles.filter(v => v.category === 'car').length },
+    { value: 'suv', label: 'SUVs', count: vehicles.filter(v => v.category === 'suv').length },
+    { value: 'motorcycle', label: 'Motorcycles', count: vehicles.filter(v => v.category === 'motorcycle').length },
+    { value: 'van', label: 'Vans', count: vehicles.filter(v => v.category === 'van').length }
   ];
 
   const statusOptions = [
-    { value: 'all', label: 'All Status', count: mockVehicles.length },
-    { value: 'active', label: 'Active', count: 2 },
-    { value: 'transferred', label: 'Transferred', count: 1 },
-    { value: 'expired', label: 'Expired', count: 1 }
+    { value: 'all', label: 'All Status', count: vehicles.length },
+    { value: 'active', label: 'Active', count: vehicles.filter(v => v.status === 'active').length },
+    { value: 'transferred', label: 'Transferred', count: vehicles.filter(v => v.status === 'transferred').length },
+    { value: 'expired', label: 'Expired', count: vehicles.filter(v => v.status === 'expired').length }
   ];
-
-  useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setVehicles(mockVehicles);
-      setFilteredVehicles(mockVehicles);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
 
   useEffect(() => {
     let filtered = vehicles.filter(vehicle => {
@@ -267,12 +162,25 @@ const VehiclesPage = () => {
     }).format(amount);
   };
 
+  const handleViewDetails = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setShowDetailModal(true);
+  };
+
+  const handleTransferVehicle = (vehicle) => {
+    // In a real app, this would navigate to the transfer form with the vehicle pre-selected
+    showNotification(`Initiating transfer for ${vehicle.registrationNo}`, 'info');
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your vehicles...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your vehicles...</p>
+          </div>
         </div>
       </div>
     );
@@ -280,6 +188,7 @@ const VehiclesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -488,12 +397,18 @@ const VehiclesPage = () => {
 
                 {/* Actions */}
                 <div className="flex space-x-2 pt-4 border-t border-gray-200">
-                  <button className="flex-1 flex items-center justify-center px-3 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                  <button 
+                    onClick={() => handleViewDetails(vehicle)}
+                    className="flex-1 flex items-center justify-center px-3 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </button>
                   {vehicle.status === 'active' && (
-                    <button className="flex-1 flex items-center justify-center px-3 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                    <button 
+                      onClick={() => handleTransferVehicle(vehicle)}
+                      className="flex-1 flex items-center justify-center px-3 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
                       <Users className="h-4 w-4 mr-2" />
                       Transfer
                     </button>
@@ -526,6 +441,180 @@ const VehiclesPage = () => {
           </div>
         )}
       </div>
+
+      {/* Vehicle Detail Modal */}
+      {showDetailModal && selectedVehicle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-96 overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">Vehicle Details</h3>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Basic Information</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Registration No:</span>
+                    <p className="font-medium">{selectedVehicle.registrationNo}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Make & Model:</span>
+                    <p className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Year:</span>
+                    <p className="font-medium">{selectedVehicle.year}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Color:</span>
+                    <p className="font-medium">{selectedVehicle.color}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Engine Capacity:</span>
+                    <p className="font-medium">{selectedVehicle.engineCapacity}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Fuel Type:</span>
+                    <p className="font-medium">{selectedVehicle.fuelType}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Technical Details */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Technical Details</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Chassis No:</span>
+                    <p className="font-medium font-mono">{selectedVehicle.chassisNo}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Engine No:</span>
+                    <p className="font-medium font-mono">{selectedVehicle.engineNo}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Mileage:</span>
+                    <p className="font-medium">{selectedVehicle.mileage.toLocaleString()} km</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Current Value:</span>
+                    <p className="font-medium">{formatCurrency(selectedVehicle.currentValue)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Registration Details */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Registration Details</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Registration Date:</span>
+                    <p className="font-medium">{new Date(selectedVehicle.registrationDate).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Expiry Date:</span>
+                    <p className="font-medium">{new Date(selectedVehicle.expiryDate).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Status:</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedVehicle.status)}`}>
+                      {selectedVehicle.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Location:</span>
+                    <p className="font-medium">{selectedVehicle.location}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Features */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Features</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedVehicle.features.map((feature, index) => (
+                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Document Status */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Document Status</h4>
+                <div className="space-y-2">
+                  {Object.entries(selectedVehicle.documents).map(([type, doc]) => (
+                    <div key={type} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm font-medium capitalize">{type}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          doc.status === 'valid' ? 'bg-green-100 text-green-700' :
+                          doc.status === 'expiring_soon' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {doc.status.replace('_', ' ')}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          Expires: {new Date(doc.expiry).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Transfer History */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Transfer History</h4>
+                <div className="space-y-2">
+                  {selectedVehicle.transferHistory.map((transfer, index) => (
+                    <div key={index} className="p-2 bg-gray-50 rounded">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium">{transfer.from} → {transfer.to}</p>
+                          <p className="text-xs text-gray-500">{transfer.reason}</p>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {new Date(transfer.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                Close
+              </button>
+              {selectedVehicle.status === 'active' && (
+                <button
+                  onClick={() => {
+                    handleTransferVehicle(selectedVehicle);
+                    setShowDetailModal(false);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Initiate Transfer
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

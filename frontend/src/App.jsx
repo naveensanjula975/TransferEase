@@ -14,6 +14,8 @@ import {
   NotificationsPage,
   SettingsPage,
   UserProfile,
+  DocumentsPage,
+  BookingsPage,
   VehicleTransferPortal,
   AdminPortal,
   PublicResourceCenter,
@@ -80,6 +82,21 @@ function App() {
                 <UserProfile />
               </RequireUser>
             } />
+            <Route path="/documents" element={
+              <RequireUser>
+                <DocumentsPage />
+              </RequireUser>
+            } />
+            <Route path="/bookings" element={
+              <RequireUser>
+                <BookingsPage />
+              </RequireUser>
+            } />
+            <Route path="/vehicles" element={
+              <RequireUser>
+                <VehiclesPage />
+              </RequireUser>
+            } />
             <Route path="/transfer" element={
               <RequireUser>
                 <VehicleTransferForm />
@@ -110,6 +127,16 @@ function App() {
             <Route path="/admin/owners" element={
               <RequireAdmin>
                 <OwnersPage />
+              </RequireAdmin>
+            } />
+            <Route path="/admin/documents" element={
+              <RequireAdmin>
+                <DocumentsPage />
+              </RequireAdmin>
+            } />
+            <Route path="/admin/bookings" element={
+              <RequireAdmin>
+                <BookingsPage />
               </RequireAdmin>
             } />
             <Route path="/admin/statistics" element={
