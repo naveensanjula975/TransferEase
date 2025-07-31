@@ -37,7 +37,7 @@ export const RequireAdmin = ({ children }) => {
 
   if (!user) {
     // Redirect to admin login page
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/admin" state={{ from: location }} replace />;
   }
 
   if (user.role !== 'admin') {
@@ -95,7 +95,7 @@ export const RequireUser = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (user.role !== 'citizen') {
+  if (user.role !== 'user') {
     // Admin trying to access user routes - redirect to admin dashboard
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -219,7 +219,7 @@ export const usePermissions = () => {
   };
 
   const isAdmin = () => hasRole('admin');
-  const isCitizen = () => hasRole('citizen');
+  const isUser = () => hasRole('user');
   const isAuthenticated = () => !!user;
 
   return {
@@ -227,7 +227,7 @@ export const usePermissions = () => {
     hasRole,
     hasAnyRole,
     isAdmin,
-    isCitizen,
+    isUser,
     isAuthenticated,
   };
 };

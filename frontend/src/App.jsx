@@ -63,6 +63,11 @@ function App() {
                 <Register />
               </RequireGuest>
             } />
+            <Route path="/register" element={
+              <RequireGuest>
+                <Register />
+              </RequireGuest>
+            } />
 
             {/* Protected user routes */}
             <Route path="/dashboard" element={

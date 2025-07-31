@@ -187,8 +187,8 @@ export const AuthProvider = ({ children }) => {
   // Check if user is admin
   const isAdmin = () => hasRole('admin');
 
-  // Check if user is citizen
-  const isCitizen = () => hasRole('citizen');
+  // Check if user is regular user
+  const isUser = () => hasRole('user');
 
   // Get user permissions
   const getPermissions = () => {
@@ -245,7 +245,7 @@ export const AuthProvider = ({ children }) => {
     // Helper functions
     hasRole,
     isAdmin,
-    isCitizen,
+    isUser,
     getPermissions,
     hasPermission,
   };
